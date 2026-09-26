@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>radiorama · contraste iodado e gadolínio</title>
+<meta name="description" content="Calculadoras, manejo de reações e preparo para meios de contraste iodado e gadolínio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F8;--surface:#FFFFFF;--ink:#122536;--muted:#56697A;--line:#D6DFE6;
+  --iodo:#A8680A;--iodo-soft:#FBF1DE;--gado:#6A4FB3;--gado-soft:#EFEBFA;
+  --alert:#B42318;--alert-soft:#FDECEA;--ok:#2E7D4F;--ok-soft:#E6F4EC;--warn:#9A6700;--warn-soft:#FFF4D6;
+  --font:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1A24;--surface:#152532;--ink:#E6EEF3;--muted:#93A6B5;--line:#26394A;
+  --iodo:#E6A43A;--iodo-soft:#33250F;--gado:#B3A0F2;--gado-soft:#262040;
+  --alert:#F07167;--alert-soft:#3B1C1A;--ok:#6CC08B;--ok-soft:#15301F;--warn:#E8B949;--warn-soft:#332810;}}
+:root[data-theme="dark"]{
+  --bg:#0E1A24;--surface:#152532;--ink:#E6EEF3;--muted:#93A6B5;--line:#26394A;
+  --iodo:#E6A43A;--iodo-soft:#33250F;--gado:#B3A0F2;--gado-soft:#262040;
+  --alert:#F07167;--alert-soft:#3B1C1A;--ok:#6CC08B;--ok-soft:#15301F;--warn:#E8B949;--warn-soft:#332810;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.5;padding-bottom:84px}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+header.top{padding:28px 0 8px}
+.brand{font-size:44px;line-height:1;margin:0;letter-spacing:-0.02em;font-weight:700}
+.brand span.i{color:var(--iodo)}.brand span.g{color:var(--gado)}
+.sub{margin:8px 0 0;color:var(--muted);font-size:16px}
+h2{font-size:28px;line-height:1.15;margin:26px 0 6px;letter-spacing:-0.01em}
+h3{font-size:20px;margin:26px 0 8px}
+p{margin:0 0 12px}
+.lead{color:var(--muted);margin-bottom:18px}
+small,.hint{color:var(--muted);font-size:14px}
+.panel{display:none}.panel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted)}
+input[type=number],select{font:inherit;font-size:19px;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;font-variant-numeric:tabular-nums}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--gado);outline-offset:2px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{flex:1;font:inherit;font-size:17px;padding:10px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.checks{display:flex;flex-direction:column;gap:2px;margin:16px 0}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.checks input{width:20px;height:20px;margin-top:2px;accent-color:var(--ink);flex:none}
+.result{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:18px;margin:18px 0}
+.big{font-size:56px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.unit{font-size:15px;color:var(--muted)}
+.chip{display:inline-block;font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--ink);color:var(--bg);margin-left:8px;vertical-align:middle}
+.scale{position:relative;margin:22px 0 6px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden}
+.bar i{display:block;height:100%}
+.ticks{display:flex;font-size:12px;color:var(--muted);margin-top:4px}
+.ticks span{text-align:center}
+.marker{position:absolute;top:-8px;width:4px;height:30px;background:var(--ink);border-radius:2px;transform:translateX(-2px);transition:left .35s ease}
+.card{border-left:5px solid var(--line);background:var(--surface);border-radius:4px 12px 12px 4px;padding:14px 16px;margin:12px 0}
+.card.iodo{border-color:var(--iodo)}.card.gado{border-color:var(--gado)}.card.met{border-color:var(--muted)}
+.card h4{margin:0 0 6px;font-size:18px}
+.card.iodo h4{color:var(--iodo)}.card.gado h4{color:var(--gado)}
+.card ul{margin:6px 0 0;padding-left:20px}.card li{margin:4px 0}
+.status{display:inline-block;font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.s-ok{background:var(--ok-soft);color:var(--ok)}.s-warn{background:var(--warn-soft);color:var(--warn)}.s-alert{background:var(--alert-soft);color:var(--alert)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.out{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.out b{display:block;font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1}
+.out.iodo b{color:var(--iodo)}.out.gado b{color:var(--gado)}
+.sec-iodo{border-top:4px solid var(--iodo);padding-top:4px;margin-top:28px}
+.sec-gado{border-top:4px solid var(--gado);padding-top:4px;margin-top:34px}
+.sec-iodo h3{color:var(--iodo);margin-top:14px}.sec-gado h3{color:var(--gado);margin-top:14px}
+details{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;color:var(--muted);flex:none}
+details[open] summary::after{content:"–"}
+details .body{padding:0 16px 14px}
+details .body ul,details .body ol{padding-left:20px;margin:6px 0}details .body li{margin:5px 0}
+.tag{font-size:13px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.t-leve{background:var(--ok-soft);color:var(--ok)}.t-mod{background:var(--warn-soft);color:var(--warn)}.t-grave{background:var(--alert-soft);color:var(--alert)}
+.ped{background:var(--gado-soft);color:var(--ink);border-radius:6px;padding:1px 6px;font-weight:700}
+.alertbox{background:var(--alert-soft);color:var(--ink);border-radius:12px;padding:14px 16px;margin:14px 0}
+.alertbox strong{color:var(--alert)}
+.tablewrap{overflow-x:auto;margin:10px 0;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:700;font-size:14px}
+tr:last-child td{border-bottom:0}
+footer{margin:40px 0 20px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+footer ul{padding-left:18px;margin:6px 0}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1.5px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs .in{display:flex;max-width:760px;margin:0 auto}
+nav.tabs button{flex:1;font:inherit;font-size:14px;border:0;background:transparent;color:var(--muted);padding:12px 2px 14px;cursor:pointer;border-top:3px solid transparent}
+nav.tabs button[aria-selected=true]{color:var(--ink);font-weight:700;border-top-color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.marker{transition:none}}
+@media (max-width:420px){.brand{font-size:38px}.split{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1 class="brand">radi<span class="i">o</span>ram<span class="g">a</span></h1>
+  <p class="sub">Contraste iodado e gadolínio na rotina: função renal, doses, reações e preparo.</p>
+</div></header>
+
+<main class="wrap">
+
+<!-- RIM -->
+<section id="rim" class="panel active" aria-labelledby="h-rim">
+  <h2 id="h-rim">Função renal e risco</h2>
+  <p class="lead">TFGe por CKD-EPI 2021 (sem coeficiente racial). Abaixo de 18 anos, usa Schwartz à beira-leito.</p>
+  <div class="grid">
+    <label class="f">Creatinina (mg/dL)<input id="cr" type="number" inputmode="decimal" step="0.01" min="0.1" placeholder="1,0"></label>
+    <label class="f">Idade (anos)<input id="age" type="number" inputmode="numeric" min="1" max="120" placeholder="60"></label>
+    <div class="f" style="display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted)">Sexo
+      <div class="seg" role="group" aria-label="Sexo"><button type="button" id="sexF" aria-pressed="true">Feminino</button><button type="button" id="sexM" aria-pressed="false">Masculino</button></div>
+    </div>
+    <label class="f" id="hWrap" hidden>Altura (cm)<input id="height" type="number" inputmode="decimal" min="40" max="220" placeholder="140"></label>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" id="aki"> Lesão renal aguda suspeita ou confirmada</label>
+    <label><input type="checkbox" id="dial"> Em diálise</label>
+    <label><input type="checkbox" id="ia"> Iodado intra-arterial de primeira passagem renal (ex.: cateterismo cardíaco)</label>
+    <label><input type="checkbox" id="icu"> Paciente de UTI</label>
+    <label><input type="checkbox" id="met"> Usa metformina</label>
+  </div>
+  <div id="renalOut"><p class="hint">Preencha creatinina e idade para ver a TFGe e as condutas.</p></div>
+</section>
+
+<!-- DOSE -->
+<section id="dose" class="panel" aria-labelledby="h-dose">
+  <h2 id="h-dose">Dose de contraste</h2>
+  <p class="lead">Estimativas por peso. Confira sempre o protocolo do serviço e o tipo de exame.</p>
+  <label class="f" style="max-width:220px">Peso (kg)<input id="w" type="number" inputmode="decimal" min="1" max="300" placeholder="70"></label>
+
+  <div class="sec-iodo">
+    <h3>Iodado (TC)</h3>
+    <div class="grid">
+      <label class="f">Concentração (mgI/mL)<select id="conc"><option>270</option><option selected>300</option><option>320</option><option>350</option><option>370</option><option>400</option></select></label>
+      <label class="f">Carga de iodo (gI/kg)<select id="gik"><option value="0.35">0,35</option><option value="0.4">0,40</option><option value="0.5" selected>0,50</option><option value="0.6">0,60</option></select></label>
+      <label class="f">Tempo de injeção (s)<input id="tinj" type="number" inputmode="numeric" min="5" max="120" value="30"></label>
+    </div>
+    <div class="split">
+      <div class="out iodo"><small>Volume</small><b id="oVol">–</b><small id="oGI">&nbsp;</small></div>
+      <div class="out iodo"><small>Fluxo</small><b id="oFlow">–</b><small id="oIDR">&nbsp;</small></div>
+    </div>
+    <p class="hint" id="iodoNote" style="margin-top:10px">Referência usual: 0,4–0,6 gI/kg em TC de abdome na fase portal. Em angio-TC, a taxa de liberação de iodo (IDR, gI/s) pesa mais que o volume total.</p>
+  </div>
+
+  <div class="sec-gado">
+    <h3>Gadolínio (RM)</h3>
+    <label class="f" style="max-width:420px">Agente<select id="gAgent"></select></label>
+    <div class="split">
+      <div class="out gado"><small>Volume</small><b id="gVol">–</b><small id="gDose">&nbsp;</small></div>
+      <div class="out gado"><small>Classificação ACR</small><b id="gGroup" style="font-size:22px">–</b><small id="gStruct">&nbsp;</small></div>
+    </div>
+    <p class="hint" style="margin-top:10px">Na insuficiência renal, use agente do grupo II na menor dose diagnóstica e evite repetir em curto intervalo.</p>
+  </div>
+</section>
+
+<!-- REACOES -->
+<section id="reacoes" class="panel" aria-labelledby="h-rea">
+  <h2 id="h-rea">Reações adversas agudas</h2>
+  <p class="lead">Reações alérgicas-símile ao iodado de baixa osmolaridade ocorrem em cerca de 0,2–0,7% das injeções (graves ≈ 0,04%). Ao gadolínio, em cerca de 0,01–0,2% (graves ≈ 0,001–0,01%).</p>
+  <div class="alertbox"><strong>Primeiro passo em qualquer reação:</strong> interromper a injeção, manter acesso venoso, chamar ajuda, avaliar via aérea, respiração, pulso e pressão, oferecer O₂ e monitorar.</div>
+  <label class="f" style="max-width:260px">Peso para doses pediátricas (kg)<input id="wPed" type="number" inputmode="decimal" min="1" max="60" placeholder="ex.: 20"></label>
+  <p class="hint">Com o peso preenchido, as doses pediátricas aparecem destacadas.</p>
+
+  <details><summary><span>Urticária</span><span class="tag t-leve">leve a moderada</span></summary><div class="body">
+    <ul>
+      <li>Poucas lesões, sem outros sintomas: observar 20–30 min; não exige tratamento.</li>
+      <li>Pruriginosa ou disseminada: difenidramina 25–50 mg VO/IV/IM. <span class="pd" data-f="diph"></span></li>
+      <li>Alternativa sem sedação: fexofenadina 180 mg VO ou cetirizina 10 mg VO.</li>
+      <li>Urticária extensa com progressão rápida: tratar como reação grave.</li>
+    </ul></div></details>
+
+  <details><summary><span>Broncoespasmo</span><span class="tag t-mod">moderada a grave</span></summary><div class="body">
+    <ul>
+      <li>O₂ por máscara 6–10 L/min; monitorar SpO₂.</li>
+      <li>Salbutamol inalatório 2 jatos (100 mcg/jato), repetir até 3 vezes.</li>
+      <li>Sem resposta ou quadro grave: adrenalina IM 0,3–0,5 mg (1 mg/mL) na face anterolateral da coxa, repetir a cada 5–15 min até 1 mg total. <span class="pd" data-f="epi"></span></li>
+    </ul></div></details>
+
+  <details><summary><span>Edema de laringe</span><span class="tag t-grave">grave</span></summary><div class="body">
+    <ul>
+      <li>O₂ 6–10 L/min e acionar equipe de via aérea.</li>
+      <li>Adrenalina IM 0,3–0,5 mg (1 mg/mL), repetir a cada 5–15 min até 1 mg. <span class="pd" data-f="epi"></span></li>
+      <li>Estridor progressivo ou dessaturação: preparar via aérea definitiva.</li>
+    </ul></div></details>
+
+  <details><summary><span>Anafilaxia (hipotensão com taquicardia)</span><span class="tag t-grave">grave</span></summary><div class="body">
+    <ol>
+      <li>Chamar o time de emergência; elevar membros inferiores; O₂ 6–10 L/min.</li>
+      <li>Adrenalina IM 0,3–0,5 mg (1 mg/mL), repetir a cada 5–15 min até 1 mg. <span class="pd" data-f="epi"></span></li>
+      <li>Cristaloide (SF 0,9% ou Ringer) 1 L IV rápido; repetir conforme resposta. <span class="pd" data-f="fluid"></span></li>
+      <li>Refratária: adrenalina IV diluída (0,1 mg/mL) em bolus lentos de 1 mL, com monitorização, por quem tem experiência.</li>
+      <li>Em uso de betabloqueador e sem resposta à adrenalina: glucagon 1–2 mg IV em 5 min.</li>
+    </ol>
+    <p class="hint">Anti-histamínico e corticoide são adjuvantes: não substituem nem atrasam a adrenalina.</p></div></details>
+
+  <details><summary><span>Reação vasovagal (hipotensão com bradicardia)</span><span class="tag t-mod">moderada a grave</span></summary><div class="body">
+    <ul>
+      <li>Elevar membros inferiores, O₂ 6–10 L/min, monitorar.</li>
+      <li>Cristaloide 1 L IV rápido. <span class="pd" data-f="fluid"></span></li>
+      <li>Bradicardia sintomática persistente: atropina 0,6–1 mg IV, repetir até 3 mg. <span class="pd" data-f="atro"></span></li>
+    </ul></div></details>
+
+  <details><summary><span>Crise hipertensiva</span><span class="tag t-grave">grave</span></summary><div class="body">
+    <ul>
+      <li>O₂ e monitorização; PA diastólica &gt; 120 ou sistólica &gt; 200 com sintomas.</li>
+      <li>Labetalol 20 mg IV lento, dobrando a cada 10 min (40, 80 mg), ou nitroglicerina 0,4 mg SL.</li>
+      <li>Suspeita de feocromocitoma: fentolamina 5 mg IV.</li>
+    </ul></div></details>
+
+  <details><summary><span>Convulsão</span><span class="tag t-grave">grave</span></summary><div class="body">
+    <ul>
+      <li>Proteger o paciente, decúbito lateral, aspirar secreções, O₂.</li>
+      <li>Crise &gt; 5 min ou recorrente: lorazepam 2–4 mg IV ou diazepam 5–10 mg IV (ou midazolam IM).</li>
+      <li>Checar glicemia.</li>
+    </ul></div></details>
+
+  <details><summary><span>Edema agudo de pulmão</span><span class="tag t-grave">grave</span></summary><div class="body">
+    <ul>
+      <li>Cabeceira elevada, O₂ 6–10 L/min, considerar ventilação não invasiva.</li>
+      <li>Furosemida 20–40 mg IV lento; nitrato se PA permitir.</li>
+    </ul></div></details>
+
+  <details><summary><span>Hipoglicemia</span><span class="tag t-mod">moderada</span></summary><div class="body">
+    <ul>
+      <li>Consciente e deglutindo: 15–20 g de glicose VO.</li>
+      <li>Sem via oral: glicose 50% 25 g IV (50 mL) ou glucagon 1 mg IM/IV.</li>
+    </ul></div></details>
+
+  <details><summary><span>Extravasamento</span><span class="tag t-leve">geralmente leve</span></summary><div class="body">
+    <ul>
+      <li>Interromper, retirar o cateter, elevar o membro acima do coração.</li>
+      <li>Compressas frias ou mornas (sem consenso), 15–60 min, 3×/dia por 1–3 dias.</li>
+      <li>Observar 2–4 h, documentar volume e orientar retorno.</li>
+      <li>Avaliação cirúrgica urgente se: dor ou edema progressivos, bolhas, alteração de perfusão ou de sensibilidade (risco de síndrome compartimental).</li>
+    </ul></div></details>
+
+  <details><summary><span>Reações tardias</span><span class="tag t-leve">geralmente leve</span></summary><div class="body">
+    <p>Exantema maculopapular 1 h a 1 semana após o iodado (mediado por células T). Autolimitado; tratar com anti-histamínico e corticoide tópico. Registrar no prontuário: aumenta o risco de recorrência com o mesmo agente.</p>
+  </div></details>
+
+  <h3>Classificação de gravidade</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Grau</th><th>Alérgica-símile</th><th>Fisiológica</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag t-leve">Leve</span></td><td>Urticária limitada, prurido, congestão nasal, espirros</td><td>Náusea ou vômito limitados, calor, sabor metálico, vasovagal que resolve sozinha</td></tr>
+      <tr><td><span class="tag t-mod">Moderada</span></td><td>Urticária difusa, broncoespasmo leve, edema facial sem dispneia</td><td>Vômitos persistentes, dor torácica isolada, vasovagal que exige tratamento</td></tr>
+      <tr><td><span class="tag t-grave">Grave</span></td><td>Edema de laringe, anafilaxia, broncoespasmo com hipóxia</td><td>Arritmia, convulsão, crise hipertensiva, edema pulmonar</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- PREPARO -->
+<section id="preparo" class="panel" aria-labelledby="h-pre">
+  <h2 id="h-pre">Preparo e situações especiais</h2>
+
+  <details open><summary>Quem precisa de pré-medicação</summary><div class="body">
+    <p><b>Indicação principal:</b> reação alérgica-símile prévia à mesma classe de contraste (iodado → iodado; gadolínio → gadolínio).</p>
+    <ul>
+      <li>Reação prévia grave: considerar exame alternativo ou sem contraste; se indispensável, trocar de agente e pré-medicar, com equipe pronta.</li>
+      <li>Trocar o agente específico pode reduzir a recorrência tanto quanto a pré-medicação.</li>
+      <li>A pré-medicação não elimina o risco: reações de escape ocorrem.</li>
+    </ul>
+    <p><b>Não indicam pré-medicação:</b> alergia a frutos do mar, a iodopovidona tópica, asma ou atopia isoladas, alergia a outros medicamentos, reação prévia à outra classe de contraste.</p>
+  </div></details>
+
+  <details><summary>Esquemas de pré-medicação (adulto)</summary><div class="body">
+    <p><b>Eletivo</b></p>
+    <ul>
+      <li>Prednisona 50 mg VO 13 h, 7 h e 1 h antes + difenidramina 50 mg 1 h antes; ou</li>
+      <li>Metilprednisolona 32 mg VO 12 h e 2 h antes (± difenidramina 50 mg 1 h antes).</li>
+    </ul>
+    <p><b>Acelerado (urgência, mínimo 4–5 h)</b></p>
+    <ul>
+      <li>Metilprednisolona 40 mg IV ou hidrocortisona 200 mg IV agora e a cada 4 h até o exame + difenidramina 50 mg IV 1 h antes.</li>
+    </ul>
+    <p class="hint">Corticoide IV dado menos de 4–5 h antes provavelmente não é eficaz. Pediatria: prednisona 0,5–0,7 mg/kg (máx. 50 mg) no mesmo horário + difenidramina 1,25 mg/kg (máx. 50 mg).</p>
+  </div></details>
+
+  <details><summary>Nefropatia associada ao contraste iodado</summary><div class="body">
+    <ul>
+      <li>Risco relevante com TFGe &lt; 30 ou lesão renal aguda (IV). Na via intra-arterial de primeira passagem e em UTI, considerar risco a partir de TFGe &lt; 45 (ESUR).</li>
+      <li>Profilaxia: SF 0,9% IV, ex.: 1 mL/kg/h por 6–12 h antes e 4–12 h depois (ajustar em ICC ou nefropatia com restrição de volume).</li>
+      <li>Bicarbonato e N-acetilcisteína não mostraram benefício sobre o SF.</li>
+      <li>Usar a menor dose diagnóstica e evitar exames repetidos em 48–72 h quando possível.</li>
+      <li>Diálise: não é necessário dialisar logo após o iodado, salvo sobrecarga de volume.</li>
+    </ul>
+  </div></details>
+
+  <details><summary>Fibrose sistêmica nefrogênica (gadolínio)</summary><div class="body">
+    <ul>
+      <li>Risco concentrado em TFGe &lt; 30, diálise e lesão renal aguda, quase exclusivamente com agentes do grupo I (gadodiamida, gadopentetato, gadoversetamida, hoje fora de uso em muitos mercados).</li>
+      <li>Com agentes do grupo II o risco é tão baixo que o ACR dispensa triagem renal e termo específico.</li>
+      <li>Paciente em diálise: realizar a sessão o quanto antes após o exame.</li>
+      <li>Depósito cerebral de gadolínio: maior com agentes lineares; sem efeito clínico demonstrado até hoje.</li>
+    </ul>
+  </div></details>
+
+  <details><summary>Gestação e amamentação</summary><div class="body">
+    <ul>
+      <li><b>Iodado na gestação:</b> usar quando a informação muda a conduta. A ESUR sugere checar a função tireoidiana do recém-nascido na primeira semana; o ACR considera suficiente o teste do pezinho.</li>
+      <li><b>Gadolínio na gestação:</b> evitar; usar apenas se o benefício for claramente necessário, com agente macrocíclico.</li>
+      <li><b>Amamentação:</b> não é necessário suspender após iodado ou gadolínio. Se a mãe preferir, pode desprezar o leite por 12–24 h.</li>
+    </ul>
+  </div></details>
+
+  <details><summary>Tireoide</summary><div class="body">
+    <ul>
+      <li>Hipertireoidismo manifesto não tratado: evitar iodado.</li>
+      <li>Iodoterapia ou cintilografia com iodo planejadas: evitar iodado nos 2 meses anteriores (ESUR).</li>
+      <li>Em risco (bócio multinodular, idosos em região com carência de iodo): monitorar função tireoidiana.</li>
+    </ul>
+  </div></details>
+
+  <details><summary>Outras situações</summary><div class="body">
+    <ul>
+      <li><b>Metformina:</b> TFGe ≥ 30 sem lesão aguda, manter. TFGe &lt; 30, lesão aguda ou intra-arterial de primeira passagem: suspender no exame e reiniciar após 48 h com função renal estável.</li>
+      <li><b>Feocromocitoma:</b> iodado IV não iônico é seguro; não exige bloqueio alfa específico para o contraste.</li>
+      <li><b>Miastenia gravis:</b> pode exacerbar; monitorar.</li>
+      <li><b>Betabloqueador:</b> não contraindica, mas pode tornar a anafilaxia refratária (tenha glucagon disponível).</li>
+      <li><b>Anemia falciforme:</b> contraste de baixa ou iso-osmolaridade é seguro.</li>
+      <li><b>“Alergia a iodo”</b> não existe como entidade: o iodo é elemento essencial. Pergunte qual foi a reação e a que substância.</li>
+    </ul>
+  </div></details>
+</section>
+
+<!-- AGENTES -->
+<section id="agentes" class="panel" aria-labelledby="h-age">
+  <h2 id="h-age">Agentes disponíveis</h2>
+  <p class="lead">Nomes comerciais variam; disponibilidade no Brasil depende do fornecedor.</p>
+  <div class="sec-iodo"><h3>Iodados</h3></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Substância</th><th>Exemplo</th><th>Tipo</th><th>mgI/mL</th></tr></thead>
+    <tbody>
+      <tr><td>Ioexol</td><td>Omnipaque</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 350</td></tr>
+      <tr><td>Iopamidol</td><td>Iopamiron</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 370</td></tr>
+      <tr><td>Ioversol</td><td>Optiray</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 320, 350</td></tr>
+      <tr><td>Iopromida</td><td>Ultravist</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 370</td></tr>
+      <tr><td>Iobitridol</td><td>Henetix</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 350</td></tr>
+      <tr><td>Iodixanol</td><td>Visipaque</td><td>Dímero não iônico, iso-osmolar</td><td>270, 320</td></tr>
+    </tbody></table></div>
+  <div class="sec-gado"><h3>Gadolínio</h3></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Substância</th><th>Exemplo</th><th>Estrutura</th><th>Conc.</th><th>Dose usual</th></tr></thead>
+    <tbody id="gTable"></tbody></table></div>
+  <p class="hint">Todos os agentes listados estão no grupo II do ACR (o gadoxetato foi reclassificado na revisão de 2024). O gadoxetato e o gadobenato têm excreção hepatobiliar parcial, úteis na fase hepatobiliar.</p>
+</section>
+
+<footer>
+  <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição. Confira doses antes de administrar.</p>
+  <p>Baseado em:</p>
+  <ul>
+    <li>ACR Manual on Contrast Media (edição vigente)</li>
+    <li>ESUR Guidelines on Contrast Agents</li>
+    <li>ACR–NKF: uso de iodado IV em doença renal (2020); gadolínio em doença renal (2021)</li>
+  </ul>
+</footer>
+</main>
+
+<nav class="tabs" aria-label="Seções"><div class="in" role="tablist">
+  <button role="tab" data-t="rim" aria-selected="true">Rim</button>
+  <button role="tab" data-t="dose" aria-selected="false">Dose</button>
+  <button role="tab" data-t="reacoes" aria-selected="false">Reações</button>
+  <button role="tab" data-t="preparo" aria-selected="false">Preparo</button>
+  <button role="tab" data-t="agentes" aria-selected="false">Agentes</button>
+</div></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const num=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)?v:NaN};
+
+/* Tabs */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.t));
+  window.scrollTo({top:0});
+  try{localStorage.setItem('rr-tab',b.dataset.t)}catch(e){}
+}));
+try{const t=localStorage.getItem('rr-tab');if(t){const b=document.querySelector(`nav.tabs button[data-t="${t}"]`);b&&b.click()}}catch(e){}
+
+/* ---------- RIM ---------- */
+let female=true;
+$('sexF').onclick=()=>{female=true;$('sexF').setAttribute('aria-pressed',true);$('sexM').setAttribute('aria-pressed',false);renal()};
+$('sexM').onclick=()=>{female=false;$('sexM').setAttribute('aria-pressed',true);$('sexF').setAttribute('aria-pressed',false);renal()};
+['cr','age','height','aki','dial','ia','icu','met'].forEach(id=>$(id).addEventListener('input',renal));
+
+function ckdepi(scr,age,f){const k=f?0.7:0.9,a=f?-0.241:-0.302;
+  return 142*Math.pow(Math.min(scr/k,1),a)*Math.pow(Math.max(scr/k,1),-1.2)*Math.pow(0.9938,age)*(f?1.012:1)}
+function stage(e){return e>=90?'G1':e>=60?'G2':e>=45?'G3a':e>=30?'G3b':e>=15?'G4':'G5'}
+
+function renal(){
+  const cr=num($('cr')),age=num($('age')),h=num($('height'));
+  const peds=age<18;$('hWrap').hidden=!peds;
+  const aki=$('aki').checked,dial=$('dial').checked,ia=$('ia').checked,icu=$('icu').checked,met=$('met').checked;
+  const out=$('renalOut');
+  let e=NaN,method='';
+  if(!dial){
+    if(!(cr>0)||!(age>0)){out.innerHTML='<p class="hint">Preencha creatinina e idade para ver a TFGe e as condutas.</p>';if(!aki)return}
+    else if(peds){if(h>0){e=0.413*h/cr;method='Schwartz à beira-leito'}else{out.innerHTML='<p class="hint">Menor de 18 anos: informe a altura.</p>';return}}
+    else{e=ckdepi(cr,age,female);method='CKD-EPI 2021'}
+  }
+  let html='';
+  if(dial){html+='<div class="result"><div class="big" style="font-size:36px">Em diálise</div><div class="unit">TFGe não se aplica</div></div>'}
+  else if(isFinite(e)){
+    const pos=Math.min(e,120)/120*100;
+    html+=`<div class="result"><div><span class="big">${fmt(e)}</span><span class="chip">${stage(e)}</span></div>
+    <div class="unit">mL/min/1,73 m² · ${method}${aki?' · <b style="color:var(--alert)">em lesão aguda a creatinina não reflete a função real</b>':''}</div>
+    <div class="scale" aria-hidden="true"><div class="marker" style="left:${pos}%"></div>
+      <div class="bar"><i style="width:12.5%;background:var(--alert)"></i><i style="width:12.5%;background:#D9622B"></i><i style="width:12.5%;background:var(--warn)"></i><i style="width:12.5%;background:#C9A227"></i><i style="width:25%;background:#7FB069"></i><i style="width:25%;background:var(--ok)"></i></div>
+      <div class="ticks"><span style="width:12.5%">&lt;15</span><span style="width:12.5%">15</span><span style="width:12.5%">30</span><span style="width:12.5%">45</span><span style="width:25%">60</span><span style="width:25%">90+</span></div></div></div>`;
+  }
+  // Iodado
+  let s,items=[];
+  if(dial){s=['s-ok','Pode receber'];items=['Não é necessário programar diálise imediata após o contraste, exceto se houver sobrecarga de volume.','Paciente com diurese residual: considerar preservá-la usando a menor dose.']}
+  else if(aki){s=['s-alert','Risco aumentado'];items=['Evitar se houver alternativa diagnóstica.','Se indispensável: hidratação com SF 0,9% IV e menor dose diagnóstica.','Reavaliar creatinina em 48–72 h.']}
+  else if(e<30){s=['s-alert','Risco aumentado'];items=['Profilaxia indicada: SF 0,9% IV (ex.: 1 mL/kg/h por 6–12 h antes e 4–12 h depois), se não houver restrição de volume.','Menor dose diagnóstica; evitar repetir em 48–72 h.','Reavaliar creatinina em 48–72 h.']}
+  else if(e<45&&(ia||icu)){s=['s-warn','Risco intermediário'];items=[(ia?'Via intra-arterial de primeira passagem':'Paciente de UTI')+' com TFGe < 45: a ESUR recomenda hidratação profilática.','Menor dose diagnóstica.']}
+  else if(e<45){s=['s-warn','Decisão individual'];items=['Via IV com TFGe 30–44: risco baixo; o ACR deixa a profilaxia a critério clínico.','Considerar hidratação se houver outros fatores de risco (ex.: IC, desidratação, nefrotóxicos).']}
+  else if(isFinite(e)){s=['s-ok','Sem medidas adicionais'];items=['Risco de lesão renal associada ao contraste não aumentado.']}
+  if(s)html+=`<div class="card iodo"><h4>Contraste iodado</h4><span class="status ${s[0]}">${s[1]}</span><ul>${items.map(i=>'<li>'+i+'</li>').join('')}</ul></div>`;
+  // Gadolinio
+  s=null;items=[];
+  if(dial){s=['s-warn','Usar grupo II'];items=['Somente agente do grupo II, na menor dose diagnóstica.','Realizar a sessão de diálise o quanto antes após o exame.']}
+  else if(aki||e<30){s=['s-warn','Usar grupo II'];items=['Somente agente do grupo II, na menor dose diagnóstica; evitar repetir em curto intervalo.','Com grupo II o risco de fibrose sistêmica nefrogênica é muito baixo; o ACR dispensa termo específico.','Agentes do grupo I são contraindicados.']}
+  else if(isFinite(e)){s=['s-ok','Sem restrição renal'];items=['Qualquer agente do grupo II na dose habitual.']}
+  if(s)html+=`<div class="card gado"><h4>Gadolínio</h4><span class="status ${s[0]}">${s[1]}</span><ul>${items.map(i=>'<li>'+i+'</li>').join('')}</ul></div>`;
+  // Metformina
+  if(met&&(isFinite(e)||aki||dial)){
+    const stop=dial||aki||e<30||ia;
+    html+=`<div class="card met"><h4>Metformina (contraste iodado)</h4><span class="status ${stop?'s-warn':'s-ok'}">${stop?'Suspender':'Manter'}</span><ul><li>${stop?'Suspender no momento do exame e reiniciar após 48 h, se a função renal estiver estável.':'TFGe ≥ 30 sem lesão aguda: não é necessário suspender.'}</li></ul></div>`;
+  }
+  out.innerHTML=html||'<p class="hint">Preencha creatinina e idade para ver a TFGe e as condutas.</p>';
+}
+
+/* ---------- DOSE ---------- */
+const GAD=[
+ {n:'Gadobutrol',b:'Gadovist',st:'Macrocíclico',M:1.0,d:0.1},
+ {n:'Gadoterato',b:'Dotarem, Clariscan',st:'Macrocíclico',M:0.5,d:0.1},
+ {n:'Gadoteridol',b:'ProHance',st:'Macrocíclico',M:0.5,d:0.1},
+ {n:'Gadopiclenol',b:'Elucirem, Vueway',st:'Macrocíclico',M:0.5,d:0.05},
+ {n:'Gadobenato',b:'MultiHance',st:'Linear',M:0.5,d:0.1},
+ {n:'Gadoxetato',b:'Primovist',st:'Linear, hepatoespecífico',M:0.25,d:0.025},
+];
+$('gAgent').innerHTML=GAD.map((g,i)=>`<option value="${i}">${g.n} (${g.b})</option>`).join('');
+$('gTable').innerHTML=GAD.map(g=>`<tr><td>${g.n}</td><td>${g.b}</td><td>${g.st}</td><td>${fmt(g.M,2).replace(/0$/,'')} M</td><td>${fmt(g.d,3).replace(/0+$/,'')} mmol/kg = ${fmt(g.d/g.M,1)} mL/kg</td></tr>`).join('');
+
+function dose(){
+  const w=num($('w')),c=+$('conc').value,gk=+$('gik').value,t=num($('tinj'));
+  if(w>0){
+    const gI=w*gk,vol=gI*1000/c;
+    $('oVol').textContent=fmt(vol)+' mL';$('oGI').textContent=fmt(gI,1)+' g de iodo';
+    if(t>0){const f=vol/t;$('oFlow').textContent=fmt(f,1)+' mL/s';$('oIDR').textContent='IDR '+fmt(f*c/1000,2)+' gI/s'}
+    else{$('oFlow').textContent='–';$('oIDR').innerHTML='&nbsp;'}
+    const warn=vol>150?'<b>Volume acima de 150 mL:</b> muitos serviços limitam o volume máximo; confira o teto do protocolo. ':'';
+    $('iodoNote').innerHTML=warn+'Referência usual: 0,4–0,6 gI/kg em TC de abdome na fase portal. Em angio-TC, a taxa de liberação de iodo (IDR, gI/s) pesa mais que o volume total.';
+  }else{['oVol','oFlow'].forEach(i=>$(i).textContent='–');['oGI','oIDR'].forEach(i=>$(i).innerHTML='&nbsp;')}
+  const g=GAD[+$('gAgent').value];
+  $('gGroup').textContent='Grupo II';$('gStruct').textContent=g.st;
+  if(w>0){const mmol=w*g.d;$('gVol').textContent=fmt(mmol/g.M,1)+' mL';$('gDose').textContent=fmt(mmol,2)+' mmol ('+fmt(g.d,3).replace(/0+$/,'')+' mmol/kg)'}
+  else{$('gVol').textContent='–';$('gDose').innerHTML='&nbsp;'}
+}
+['w','conc','gik','tinj','gAgent'].forEach(id=>$(id).addEventListener('input',dose));
+dose();
+
+/* ---------- PEDIATRIA ---------- */
+function ped(){
+  const w=num($('wPed'));
+  document.querySelectorAll('.pd').forEach(el=>{
+    if(!(w>0)){el.innerHTML='';return}
+    let t='';
+    switch(el.dataset.f){
+      case 'epi':t=`Criança: ${fmt(Math.min(0.01*w,0.3),2)} mg IM (0,01 mg/kg; máx. 0,3 mg)`;break;
+      case 'diph':t=`Criança: ${fmt(Math.min(w,50))} mg (1 mg/kg; máx. 50 mg)`;break;
+      case 'fluid':t=`Criança: ${fmt(10*w)}–${fmt(20*w)} mL (10–20 mL/kg)`;break;
+      case 'atro':t=`Criança: ${fmt(Math.min(Math.max(0.02*w,0.1),0.6),2)} mg IV (0,02 mg/kg; mín. 0,1, máx. 0,6 mg)`;break;
+    }
+    el.innerHTML=`<span class="ped">${t}</span>`;
+  });
+}
+$('wPed').addEventListener('input',ped);
+$('w').addEventListener('input',()=>{if(!$('wPed').value&&num($('w'))<=60){}});
+</script>
+</body>
+</html>
