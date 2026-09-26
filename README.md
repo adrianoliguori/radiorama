@@ -1,7 +1,14 @@
 # radiorama
 
-Webapp de apoio para uso de meios de contraste iodado e gadolínio: função renal (CKD-EPI 2021 / Schwartz), cálculo de dose, manejo de reações adversas, preparo e agentes disponíveis.
+Portal de ferramentas de radiologia, publicado em https://radiorama.netlify.app.
 
-Site estático de um único arquivo (`index.html`), publicado no Netlify.
+| Caminho | Ferramenta |
+|---|---|
+| `/` | Página inicial: escolha da ferramenta |
+| `/contraste/` | Contraste iodado e gadolínio: função renal, doses, reações e preparo |
+| `/pedir-exames/` | Pedir Radiologia: montar requisição, qual exame pedir, segurança, treino |
+| `/pi-qual/` | PI-QUAL (em breve) |
+
+Sites estáticos, sem build. Para adicionar uma ferramenta, crie uma pasta com `index.html` e um cartão na página inicial.
 
 > Uso educacional e de apoio. Não substitui o julgamento clínico nem os protocolos da instituição.

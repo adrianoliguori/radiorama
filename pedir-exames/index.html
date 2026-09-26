@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Pedir Radiologia — Radiologia UFRN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F3; --surface:#FFFFFF; --ink:#16243A; --muted:#5B6B7E; --line:#C9D3DB;
+  --accent:#0B7285; --accent-soft:#D4ECEF; --warn:#8A5200; --warn-bg:#FFF3DC;
+  --danger:#A61E2B; --danger-bg:#FBE4E6; --ok:#2B7A3D; --ok-bg:#E1F2E5;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1720; --surface:#17212C; --ink:#E4ECF2; --muted:#93A3B3; --line:#2B3A48;
+    --accent:#45B7C7; --accent-soft:#133840; --warn:#F0B45A; --warn-bg:#3A2A10;
+    --danger:#F07A84; --danger-bg:#3D1A1F; --ok:#6CC784; --ok-bg:#16301D;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1720; --surface:#17212C; --ink:#E4ECF2; --muted:#93A3B3; --line:#2B3A48;
+  --accent:#45B7C7; --accent-soft:#133840; --warn:#F0B45A; --warn-bg:#3A2A10;
+  --danger:#F07A84; --danger-bg:#3D1A1F; --ok:#6CC784; --ok-bg:#16301D;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+header.top{padding:40px 0 8px}
+.home{display:inline-block;font-size:.88rem;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
+.brand{font-size:.9rem;color:var(--muted);margin:0 0 18px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.1rem,5.2vw,3.6rem);line-height:1.05;letter-spacing:-.01em;margin:0 0 14px;max-width:16ch}
+.lede{font-size:1.08rem;color:var(--muted);max-width:60ch;margin:0}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin-top:28px}
+.tablist{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tablist::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:14px 14px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--ink)}
+
+main{padding:28px 0 64px}
+section.panel{display:none}
+section.panel.active{display:block}
+h2{font-family:var(--serif);font-weight:500;font-size:1.9rem;line-height:1.15;margin:0 0 6px}
+h3{font-size:1.02rem;margin:0 0 8px}
+.intro{color:var(--muted);max-width:66ch;margin:0 0 24px}
+
+/* Montar pedido */
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:860px){.builder{grid-template-columns:1fr}}
+fieldset{border:0;margin:0 0 22px;padding:0}
+legend{font-weight:700;font-size:1rem;margin-bottom:10px;padding:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+label.f{display:block;font-size:.9rem;font-weight:600;margin-bottom:12px}
+label.f span.hint{display:block;font-weight:400;color:var(--muted);font-size:.84rem;margin-top:2px}
+input[type=text],input[type=number],select,textarea{width:100%;margin-top:6px;font:inherit;font-size:.97rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 11px}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+@media (max-width:520px){.checks{grid-template-columns:1fr}}
+.checks label{display:flex;gap:9px;align-items:flex-start;font-size:.93rem;cursor:pointer}
+.checks input{margin-top:4px;accent-color:var(--accent);width:17px;height:17px;flex:none}
+
+.slipcol{position:sticky;top:70px}
+@media (max-width:860px){.slipcol{position:static}}
+.slip{background:var(--surface);border:1px solid var(--line);border-top:2px dashed var(--line);border-radius:0 0 10px 10px;padding:22px 22px 18px;box-shadow:0 1px 0 var(--line)}
+.slip-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+.slip-head strong{font-family:var(--serif);font-size:1.3rem;font-weight:600}
+.slip-head small{color:var(--muted)}
+.slip dl{margin:0;display:grid;grid-template-columns:130px 1fr;gap:8px 12px;font-size:.93rem}
+@media (max-width:420px){.slip dl{grid-template-columns:1fr}.slip dd{margin-bottom:6px}}
+.slip dt{color:var(--muted)}
+.slip dd{margin:0;white-space:pre-wrap;word-break:break-word}
+.slip dd.empty{color:var(--line);font-style:italic}
+.meter{margin:18px 0 6px;display:flex;align-items:center;gap:12px}
+.meter-bar{flex:1;height:8px;background:var(--paper);border-radius:4px;overflow:hidden}
+.meter-fill{height:100%;width:0;background:var(--danger);transition:width .3s,background .3s}
+.meter-label{font-weight:700;font-size:.9rem;min-width:9ch;text-align:right}
+@media (prefers-reduced-motion:reduce){.meter-fill{transition:none}}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button.btn{font:600 .95rem var(--sans);border-radius:6px;padding:10px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--surface)}
+button.btn.ghost{background:transparent;color:var(--accent)}
+.alerts{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.alert{border-left:4px solid;border-radius:0 6px 6px 0;padding:10px 12px;font-size:.9rem}
+.alert.warn{border-color:var(--warn);background:var(--warn-bg)}
+.alert.danger{border-color:var(--danger);background:var(--danger-bg)}
+.alert.ok{border-color:var(--ok);background:var(--ok-bg)}
+.alert b{display:block;margin-bottom:2px}
+.toast{font-size:.88rem;color:var(--ok);font-weight:600;align-self:center}
+
+.onco-box{border-left:3px solid var(--accent);padding:4px 0 2px 14px;margin-top:4px}
+.onco-box[hidden]{display:none}
+.talk{margin:16px 0 0;font-size:.92rem;padding:14px 16px;background:var(--accent-soft);border-radius:8px}
+/* Roteiro */
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;max-width:820px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:48px 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
+.steps li::before{content:counter(s);font-family:var(--serif);font-size:2rem;line-height:1;color:var(--accent)}
+.steps h3{margin:0 0 4px;font-size:1.08rem}
+.steps p{margin:0;color:var(--muted);font-size:.95rem;max-width:68ch}
+.steps .ex{margin-top:10px;font-size:.9rem;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.steps .ex{grid-template-columns:1fr}}
+.ex div{padding:8px 12px;border-radius:6px}
+.ex .bad{background:var(--danger-bg)}
+.ex .good{background:var(--ok-bg)}
+.ex small{display:block;font-weight:700;margin-bottom:2px;color:var(--ink)}
+.modo{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:-8px 0 24px}
+.modo-btn{font:600 .92rem var(--sans);padding:8px 16px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+.modo-btn:first-child{border-radius:6px 0 0 6px}
+.modo-btn:nth-child(2){border-radius:0 6px 6px 0;border-left:0}
+.modo-btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.modo-hint{margin-left:14px;color:var(--muted);font-size:.88rem;flex-basis:auto}
+@media (max-width:620px){.modo-hint{margin:8px 0 0;flex-basis:100%}}
+form.simp [data-det]{display:none}
+.appname{display:block;font-family:var(--serif);font-weight:600;font-size:1.35rem;color:var(--accent);margin-bottom:2px}
+footer .bug{color:var(--ink)}
+/* Guia */
+.searchbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.searchbar input{max-width:420px;margin-top:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 .88rem var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.scen{border-top:1px solid var(--line)}
+.scen details{border-bottom:1px solid var(--line)}
+.scen summary{list-style:none;cursor:pointer;padding:14px 4px;display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:baseline}
+.scen summary::-webkit-details-marker{display:none}
+.scen summary .t{font-weight:600}
+.scen summary .first{color:var(--accent);font-weight:600;font-size:.92rem;text-align:right}
+@media (max-width:620px){.scen summary{grid-template-columns:1fr}.scen summary .first{text-align:left}}
+.scen summary .reg{grid-column:1/-1;color:var(--muted);font-size:.82rem}
+.scen .body{padding:0 4px 18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;font-size:.92rem}
+@media (max-width:760px){.scen .body{grid-template-columns:1fr}}
+.scen .body h4{margin:0 0 4px;font-size:.86rem;color:var(--muted);font-weight:600}
+.scen .body p{margin:0}
+.scen .body .avoid{color:var(--danger)}
+.empty-state{padding:24px 4px;color:var(--muted)}
+
+/* Segurança */
+.dose{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:28px}
+.dose-row{display:grid;grid-template-columns:190px 1fr 150px;gap:12px;align-items:center;padding:7px 0;font-size:.92rem}
+@media (max-width:640px){.dose-row{grid-template-columns:1fr;gap:4px;padding:10px 0;border-bottom:1px solid var(--line)}}
+.dose-track{height:14px;background:var(--paper);border-radius:3px;overflow:hidden}
+.dose-fill{height:100%;background:var(--accent)}
+.dose-fill.zero{background:transparent;border:1px dashed var(--ok);border-radius:3px;width:100%!important}
+.dose-val{color:var(--muted);font-variant-numeric:tabular-nums}
+.note{font-size:.84rem;color:var(--muted);margin-top:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.box ul{margin:0;padding-left:18px;font-size:.93rem}
+.box li{margin-bottom:6px}
+
+/* Quiz */
+.quiz{max-width:720px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px}
+.qprog{color:var(--muted);font-size:.88rem;margin-bottom:8px}
+.qtext{font-family:var(--serif);font-size:1.3rem;line-height:1.3;margin:0 0 16px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;font:500 .97rem var(--sans);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.wrong{background:var(--danger-bg);border-color:var(--danger)}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;font-size:.94rem;display:none}
+.explain.show{display:block}
+.score{font-family:var(--serif);font-size:2rem;margin:0 0 8px}
+
+footer{border-top:1px solid var(--line);padding:22px 0 36px;color:var(--muted);font-size:.85rem}
+footer p{max-width:80ch;margin:0 0 6px}
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <a class="home" href="/">← radiorama</a>
+  <p class="brand"><strong class="appname">Pedir Radiologia</strong>Disciplina de Radiologia, UFRN — Prof. Adriano Liguori</p>
+  <h1>Pedir bem é metade do diagnóstico.</h1>
+  <p class="lede">Monte uma requisição completa, descubra qual exame pedir primeiro em cada cenário e confira a segurança antes de mandar o paciente para a imagem.</p>
+</header>
+
+<nav class="tabs" aria-label="Seções">
+  <div class="wrap tablist" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-pedido" id="t-pedido">Montar pedido</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-roteiro" id="t-roteiro">Roteiro do pedido</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-guia" id="t-guia">Qual exame pedir?</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-seg" id="t-seg">Segurança</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-quiz" id="t-quiz">Treinar</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- MONTAR PEDIDO -->
+<section class="panel active" id="p-pedido" role="tabpanel" aria-labelledby="t-pedido">
+  <h2>Montar pedido</h2>
+  <p class="intro">O radiologista escolhe o protocolo, o contraste e a atenção do laudo a partir do que você escreve. Preencha à esquerda e veja a requisição tomar forma à direita.</p>
+  <div class="modo" role="group" aria-label="Versão do formulário">
+    <button type="button" class="modo-btn" data-modo="det" aria-pressed="true">Detalhada</button>
+    <button type="button" class="modo-btn" data-modo="simp" aria-pressed="false">Simplificada</button>
+    <span class="modo-hint" id="modo-hint">Todos os campos do roteiro, incluindo laboratório, tratamentos e dados oncológicos.</span>
+  </div>
+
+  <div class="builder">
+    <form id="form" onsubmit="return false">
+      <fieldset>
+        <legend>Identificação</legend>
+        <label class="f">Nome completo do paciente
+          <span class="hint">Exatamente como no documento de identificação.</span>
+          <input type="text" id="nome" autocomplete="off" placeholder="ex.: Maria das Graças Souza Lima">
+        </label>
+        <div class="row">
+          <label class="f">Idade<input type="number" id="idade" min="0" max="120" placeholder="ex.: 34"></label>
+          <label class="f">Sexo
+            <select id="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Intersexo</option><option>Não informado</option></select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Exame solicitado</legend>
+        <div class="row">
+          <label class="f">Modalidade
+            <select id="modal">
+              <option value="">Selecione</option>
+              <option value="RX">Radiografia</option>
+              <option value="US">Ultrassonografia</option>
+              <option value="USD">Ultrassonografia com Doppler</option>
+              <option value="TC">Tomografia computadorizada</option>
+              <option value="ANGIOTC">Angiotomografia</option>
+              <option value="RM">Ressonância magnética</option>
+              <option value="MMG">Mamografia</option>
+              <option value="PET">PET-CT</option>
+            </select>
+          </label>
+          <label class="f">Região ou órgão<input type="text" id="regiao" placeholder="ex.: abdome e pelve"></label>
+        </div>
+        <div class="row">
+          <label class="f">Contraste
+            <select id="contraste">
+              <option value="">Não se aplica</option>
+              <option value="sem">Sem contraste</option>
+              <option value="com">Com contraste endovenoso</option>
+              <option value="radiologista">A critério do radiologista</option>
+            </select>
+          </label>
+          <label class="f">Caráter
+            <select id="carater"><option>Eletivo</option><option>Urgência</option><option>Emergência</option></select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Indicação clínica</legend>
+        <label class="f">Queixa principal
+          <input type="text" id="queixa" placeholder="ex.: Dor abdominal">
+        </label>
+        <div class="row">
+          <label data-det class="f">Início
+            <select id="inicio"><option value="">Selecione</option><option>agudo</option><option>subagudo</option><option>crônico</option></select>
+          </label>
+          <label class="f">Tempo de evolução<input type="text" id="tempo" placeholder="ex.: há 24 horas"></label>
+        </div>
+        <label data-det class="f">Localização e características
+          <span class="hint">Caracterizadores primários: onde, como, fatores de piora e melhora.</span>
+          <input type="text" id="carac" placeholder="ex.: difusa, depois localizada em fossa ilíaca direita">
+        </label>
+        <label class="f">Sinais e sintomas associados
+          <span class="hint">Caracterizadores secundários: febre, sinais de exame físico.</span>
+          <textarea id="secund" style="min-height:64px" placeholder="ex.: febre 38,2 °C, descompressão brusca positiva, Giordano negativo"></textarea>
+        </label>
+        <label class="f">Hipótese diagnóstica
+          <input type="text" id="hipotese" placeholder="ex.: Apendicite aguda">
+        </label>
+        <label class="f">Pergunta clínica
+          <span class="hint">O que você quer que o exame responda?</span>
+          <textarea id="pergunta" style="min-height:56px" placeholder="ex.: Há sinais de apendicite? Há complicação (abscesso, perfuração)?"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset data-det>
+        <legend>Dados complementares</legend>
+        <label class="f">Laboratório relevante
+          <span class="hint">Hemograma, VHS, PCR, enzimas hepáticas; análise de líquido peritoneal ou pleural.</span>
+          <textarea id="lab" style="min-height:56px" placeholder="ex.: Leucócitos 15.000 com desvio à esquerda; PCR 86"></textarea>
+        </label>
+        <label class="f">Exames de imagem prévios e achados
+          <input type="text" id="previos" placeholder="ex.: US em 10/08/2026: hidronefrose moderada à direita">
+        </label>
+        <label class="f">Tratamentos já feitos e resposta
+          <span class="hint">Analgésicos, antibióticos, imunobiológicos, toxina botulínica. Houve melhora?</span>
+          <input type="text" id="trat" placeholder="ex.: Ciprofloxacino por 5 dias sem melhora">
+        </label>
+        <label class="f">Cirurgias prévias
+          <input type="text" id="cirurgia" placeholder="ex.: Colectomia direita em 03/2025">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <div class="checks" style="grid-template-columns:1fr;margin-bottom:10px">
+          <label><input type="checkbox" id="onco"> <strong>Paciente oncológico</strong></label>
+        </div>
+        <div id="onco-box" class="onco-box" hidden>
+          <label class="f">Finalidade do exame
+            <select id="finalidade">
+              <option value="">Selecione</option>
+              <option>Estadiamento</option>
+              <option>Reestadiamento</option>
+              <option>Avaliação de resposta ao tratamento</option>
+              <option>Suspeita de recidiva</option>
+              <option>Seguimento</option>
+            </select>
+          </label>
+          <label data-det class="f">Anatomopatológico
+            <span class="hint">Tipo histológico, subtipo e grau (ex.: Gleason, Fuhrman).</span>
+            <input type="text" id="ap" placeholder="ex.: Adenocarcinoma de cólon moderadamente diferenciado">
+          </label>
+          <label data-det class="f">Marcadores tumorais, com valores e datas
+            <span class="hint">CEA, CA 19-9, CA-125, PSA: inclua os últimos valores e a tendência.</span>
+            <input type="text" id="marc" placeholder="ex.: CEA 2,1 (04/2025) → 8,4 (09/2026)">
+          </label>
+          <label data-det class="f">Quimioterapia, imunoterapia ou radioterapia
+            <span class="hint">Esquema, número de ciclos e data de término.</span>
+            <input type="text" id="qt" placeholder="ex.: FOLFOX, 12 ciclos, término em 09/2025">
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Médico solicitante</legend>
+        <div class="row">
+          <label class="f">Nome<input type="text" id="medico" autocomplete="off" placeholder="ex.: Dra. Júlia Martins"></label>
+          <label class="f">CRM<input type="text" id="crm" autocomplete="off" placeholder="ex.: CRM-RN 12345"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Segurança</legend>
+        <label class="f" style="max-width:260px">TFG estimada (mL/min/1,73 m²)
+          <span class="hint">Deixe em branco se não souber.</span>
+          <input type="number" id="tfg" min="0" max="200" placeholder="ex.: 72">
+        </label>
+        <div class="checks">
+          <label><input type="checkbox" id="gest"> Gestante ou possibilidade de gestação</label>
+          <label data-det><input type="checkbox" id="amam"> Amamentando</label>
+          <label><input type="checkbox" id="alergia"> Reação prévia a contraste</label>
+          <label data-det><input type="checkbox" id="metf"> Usa metformina</label>
+          <label data-det><input type="checkbox" id="ira"> Lesão renal aguda atual</label>
+          <label><input type="checkbox" id="mp"> Marca-passo, CDI ou implante metálico</label>
+          <label data-det><input type="checkbox" id="claus"> Claustrofobia</label>
+          <label data-det><input type="checkbox" id="dialise"> Em diálise</label>
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="slipcol">
+      <div class="slip" aria-live="polite">
+        <div class="slip-head"><strong>Requisição de exame</strong><small id="s-carater">Eletivo</small></div>
+        <dl id="slip-dl"></dl>
+        <div class="meter" aria-hidden="true">
+          <div class="meter-bar"><div class="meter-fill" id="meter"></div></div>
+          <span class="meter-label" id="meter-l">0%</span>
+        </div>
+        <div class="btns">
+          <button class="btn" type="button" id="pdf">Gerar PDF</button>
+          <button class="btn ghost" type="button" id="copy">Copiar pedido</button>
+          <button class="btn ghost" type="button" data-ex="urg">Exemplo: urgência</button>
+          <button class="btn ghost" type="button" data-ex="onc">Exemplo: oncológico</button>
+          <button class="btn ghost" type="button" id="limpar">Limpar</button>
+          <span class="toast" id="toast" role="status"></span>
+        </div>
+      </div>
+      <div class="alerts" id="alerts"></div>
+      <p class="talk"><strong>Na dúvida, converse com o radiologista.</strong> Ele pode sugerir outro exame, contraindicar um que não ajuda ou dizer se o contraste é mesmo necessário.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROTEIRO -->
+<section class="panel" id="p-roteiro" role="tabpanel" aria-labelledby="t-roteiro">
+  <h2>Roteiro do pedido</h2>
+  <p class="intro">A sequência que o radiologista espera encontrar numa boa requisição. Use como guia ao preencher a aba "Montar pedido".</p>
+  <ol class="steps">
+    <li><div><h3>Nome completo do paciente</h3><p>Escreva exatamente como consta no documento de identificação. Nome errado gera confusão na realização e na entrega do exame.</p></div></li>
+    <li><div><h3>Queixa principal e caracterizadores primários</h3><p>Comece pela queixa (dor abdominal, hematúria) e diga como ela é: início agudo ou crônico, tempo de evolução, localização. Dor há 4 horas e dor há 5 anos mudam o raciocínio e até a forma de fazer o exame.</p></div></li>
+    <li><div><h3>Caracterizadores secundários</h3><p>Sinais e sintomas associados que ajudam a interpretar: febre, descompressão brusca positiva, punho-percussão (Giordano) positiva.</p></div></li>
+    <li><div><h3>No paciente oncológico: estadiamento ou reestadiamento?</h3><p>A finalidade modifica o protocolo do exame. Informe também o anatomopatológico (tipo, subtipo, grau: Gleason, Fuhrman) e os marcadores tumorais com os últimos valores. Um CEA que normalizou após a cirurgia e volta a subir sugere recidiva.</p></div></li>
+    <li><div><h3>Laboratório relevante</h3><p>Hemograma, VHS, enzimas hepáticas. Transaminases elevadas numa dor abdominal apontam para afecção hepática. Análise de líquidos também ajuda: amilase alta no derrame pleural sugere doença pancreática.</p></div></li>
+    <li><div><h3>Imagem prévia relevante</h3><p>Hidronefrose vista no ultrassom motivando a TC; nódulo hepático visto na TC motivando a RM; múltiplos nódulos pulmonares na radiografia levando à busca de um primário abdominal.</p></div></li>
+    <li><div><h3>Tratamentos já feitos e a resposta</h3><p>Analgésicos ou antibióticos sem melhora direcionam para diagnósticos alternativos. Na oncologia: esquema de quimioterapia, número de ciclos e data de término, que influi diretamente na imagem do PET-CT. Imunobiológicos e toxina botulínica também contam.</p></div></li>
+    <li><div><h3>Cirurgias prévias</h3><p>Uma colectomia direita, por exemplo, faz o radiologista avaliar com cuidado a região operada em busca de recidiva local e checar as anastomoses.</p></div></li>
+    <li><div><h3>Sem siglas obscuras, sem códigos, letra legível</h3><p>Siglas universais como DM e HAS podem ser usadas. Siglas específicas e códigos como o CID dificultam a análise do caso.</p>
+      <div class="ex"><div class="bad"><small>Evite</small>CID R10.3. Pct c/ DAI, s/ melhora c/ ATB.</div><div class="good"><small>Prefira</small>Dor em fossa ilíaca direita há 3 dias, sem melhora com ciprofloxacino.</div></div></div></li>
+    <li><div><h3>Converse com o radiologista</h3><p>Ele pode sugerir um exame mais adequado, contraindicar outro conforme a situação clínica e dizer se o contraste é necessário ou dispensável.</p></div></li>
+  </ol>
+</section>
+
+<!-- GUIA -->
+<section class="panel" id="p-guia" role="tabpanel" aria-labelledby="t-guia">
+  <h2>Qual exame pedir primeiro?</h2>
+  <p class="intro">Cenários frequentes na prática, com o exame de primeira linha, a alternativa e o que evitar. Baseado nos Critérios de Adequação do American College of Radiology (ACR) e em diretrizes nacionais.</p>
+  <div class="searchbar">
+    <input type="text" id="busca" placeholder="Busque por sintoma ou doença, ex.: icterícia">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="scen" id="scen"></div>
+</section>
+
+<!-- SEGURANÇA -->
+<section class="panel" id="p-seg" role="tabpanel" aria-labelledby="t-seg">
+  <h2>Segurança</h2>
+  <p class="intro">Radiação, contraste, gestação e ressonância: o que conferir antes de assinar o pedido.</p>
+
+  <div class="dose">
+    <h3>Dose efetiva aproximada, comparada à radiação natural</h3>
+    <div id="doses"></div>
+    <p class="note">Valores médios para adultos (RadiologyInfo, ACR/RSNA). A radiação natural de fundo é cerca de 3 mSv por ano. A dose real varia com o equipamento, o protocolo e o biotipo.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>Contraste iodado (TC)</h3>
+      <ul>
+        <li>TFG ≥ 30: não precisa de profilaxia específica para lesão renal.</li>
+        <li>TFG &lt; 30 fora de diálise ou lesão renal aguda: pese risco e benefício; considere hidratação EV.</li>
+        <li>Metformina: suspender por 48 h apenas se TFG &lt; 30 ou lesão renal aguda, e reavaliar a função renal.</li>
+        <li>Reação alérgica prévia: informe no pedido. Considere exame alternativo ou pré-medicação conforme protocolo do serviço.</li>
+        <li>Alergia a frutos do mar não é contraindicação.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Gadolínio (RM)</h3>
+      <ul>
+        <li>Agentes do grupo II têm risco muito baixo de fibrose sistêmica nefrogênica, mesmo com TFG baixa.</li>
+        <li>Em TFG &lt; 30 ou diálise, use só se o contraste mudar a conduta e com agente do grupo II.</li>
+        <li>Na gestação, evite gadolínio salvo quando essencial.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Gestação e amamentação</h3>
+      <ul>
+        <li>Prefira ultrassonografia e ressonância sem contraste.</li>
+        <li>Doses fetais abaixo de 50 mGy não se associam a malformações ou perda gestacional. Nenhum exame diagnóstico isolado chega perto disso fora da pelve.</li>
+        <li>Se a TC é o melhor exame para a mãe, não deixe de pedir. Informe a gestação no pedido.</li>
+        <li>Amamentação: não é necessário suspender após contraste iodado ou gadolínio.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Ressonância magnética</h3>
+      <ul>
+        <li>Marca-passo, CDI e neuroestimuladores: confirme se o dispositivo é condicional para RM.</li>
+        <li>Corpo estranho metálico ocular, clipes de aneurisma antigos e projéteis exigem avaliação prévia.</li>
+        <li>Claustrofobia: avise no pedido para o serviço programar sedação ou equipamento adequado.</li>
+        <li>Exames longos: pacientes instáveis ou que não colaboram são melhor avaliados por TC.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz">
+  <h2>Treinar</h2>
+  <p class="intro">Casos curtos para fixar a escolha do exame inicial.</p>
+  <div class="quiz"><div class="qcard" id="qcard"></div></div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <p>Ferramenta de ensino. Não substitui o julgamento clínico nem os protocolos do seu serviço. Em caso de dúvida sobre o melhor exame, converse com o radiologista.</p>
+  <p class="bug">Encontrou um erro ou tem uma sugestão? Escreva para <a href="mailto:adrianoliguori@gmail.com?subject=Pedir%20Radiologia%20-%20erro%20ou%20sugest%C3%A3o">adrianoliguori@gmail.com</a>.</p>
+  <p>Referências: ACR Appropriateness Criteria; ACR Manual on Contrast Media; ACOG Committee Opinion 723; RadiologyInfo.org.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ---------- Tabs ----------
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===t.getAttribute('aria-controls')));
+}));
+
+// ---------- Montar pedido ----------
+const $=id=>document.getElementById(id);
+const fields=['medico','crm','nome','idade','sexo','modal','regiao','contraste','carater','queixa','inicio','tempo','carac','secund','hipotese','pergunta','lab','previos','trat','cirurgia','onco','finalidade','ap','marc','qt','tfg','gest','amam','alergia','metf','ira','mp','claus','dialise'];
+const textos=['regiao','queixa','tempo','carac','secund','hipotese','pergunta','lab','previos','trat','cirurgia','ap','marc','qt'];
+const modalNome={RX:'Radiografia',US:'Ultrassonografia',USD:'Ultrassonografia com Doppler',TC:'Tomografia computadorizada',ANGIOTC:'Angiotomografia',RM:'Ressonância magnética',MMG:'Mamografia',PET:'PET-CT'};
+const contNome={sem:'sem contraste',com:'com contraste endovenoso',radiologista:'contraste a critério do radiologista'};
+const vagos=/\b(rotina|check[- ]?up|a\/e|a esclarecer|avalia[cç][aã]o geral)\b/i;
+const raiox=/\b(raio[s]?[- ]?x|rx)\b/i;
+const cid=/\b(cid[- ]?(10)?\s*[:\-]?\s*)?[A-TV-Z]\d{2}(\.\d{1,2})?\b/;
+const siglasComuns=new Set('HAS DM TC RM US PET CT PCR VHS TGO TGP ALT AST GGT FA LDH INR CEA PSA CA HCG BHCG IRA DRC TFG EV VO HIV DPOC IAM AVC TEP TVP ICC FID FIE HCD HCE QT RT UTI ITU IMC HD AP SUS RX CID FOLFOX FOLFIRI FOLFIRINOX CAPOX XELOX CHOP RCHOP ABVD BCG'.split(' '));
+
+let modo='det';
+function oculto(e){return modo==='simp'&&!!e.closest('[data-det]')}
+function val(id){const e=$(id);if(oculto(e))return e.type==='checkbox'?false:'';return e.type==='checkbox'?e.checked:e.value.trim()}
+document.querySelectorAll('.modo-btn').forEach(b=>b.addEventListener('click',()=>{
+  modo=b.dataset.modo;
+  document.querySelectorAll('.modo-btn').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('form').classList.toggle('simp',modo==='simp');
+  $('modo-hint').textContent=modo==='simp'?'Só o essencial: paciente, exame, queixa, hipótese, pergunta clínica e segurança básica.':'Todos os campos do roteiro, incluindo laboratório, tratamentos e dados oncológicos.';
+  build();
+}));
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function build(){
+  const v={};fields.forEach(f=>v[f]=val(f));
+  $('onco-box').hidden=!v.onco;
+  const exame=v.modal?(modalNome[v.modal]+(v.regiao?' de '+v.regiao:'')+(v.contraste?', '+contNome[v.contraste]:'')):'';
+  const paciente=[v.nome,v.idade?v.idade+' anos':'',v.sexo==='Não informado'?'sexo não informado':v.sexo].filter(Boolean).join(', ');
+  const evol=[v.inicio?'início '+v.inicio:'',v.tempo].filter(Boolean).join(', ');
+  const indic=[v.queixa?v.queixa+(evol?' ('+evol+')':''):evol,v.carac,v.secund].filter(Boolean).join('. ');
+  const onc=v.onco?[v.finalidade,v.ap?'AP: '+v.ap:'',v.marc?'Marcadores: '+v.marc:'',v.qt?'Tratamento oncológico: '+v.qt:''].filter(Boolean).join('. '):'';
+  const seg=[];
+  if(v.gest)seg.push('gestante ou possível gestação');
+  if(v.amam)seg.push('amamentando');
+  if(v.tfg)seg.push('TFG '+v.tfg+' mL/min/1,73 m²');
+  if(v.dialise)seg.push('em diálise');
+  if(v.ira)seg.push('lesão renal aguda');
+  if(v.alergia)seg.push('reação prévia a contraste');
+  if(v.metf)seg.push('usa metformina');
+  if(v.mp)seg.push('marca-passo/implante metálico');
+  if(v.claus)seg.push('claustrofobia');
+  const linhas=[
+    ['Paciente',paciente],['Solicito',exame],['Indicação clínica',indic],['Laboratório',v.lab],
+    ['Imagem prévia',v.previos],['Oncologia',onc],['Tratamentos',v.trat],['Cirurgias',v.cirurgia],
+    ['Hipótese',v.hipotese],['Pergunta clínica',v.pergunta],['Segurança',seg.join('; ')]
+  ];
+  const obrig=['Paciente','Solicito','Indicação clínica','Hipótese','Pergunta clínica'];
+  $('slip-dl').innerHTML=linhas.filter(([k,x])=>x||obrig.includes(k)||(k==='Oncologia'&&v.onco))
+    .map(([k,x])=>`<dt>${k}</dt><dd class="${x?'':'empty'}">${x?esc(x):'não informado'}</dd>`).join('');
+  $('s-carater').textContent=v.carater;
+
+  // pontuação, seguindo o roteiro da aula
+  let pts=0;
+  if(v.nome.split(/\s+/).length>=2)pts+=10; else if(v.nome)pts+=4;
+  if(v.idade&&v.sexo)pts+=5;
+  if(v.modal&&v.regiao)pts+=10;
+  if(v.queixa)pts+=15;
+  if(v.inicio||v.tempo)pts+=10;
+  if(v.carac||v.secund)pts+=10;
+  if(v.hipotese)pts+=10;
+  if(v.pergunta)pts+=10;
+  if(modo==='simp'||v.lab||v.previos||v.trat||v.cirurgia)pts+=10;
+  if(!v.onco)pts+=10; else if(modo==='simp')pts+=v.finalidade?10:0; else pts+=(v.finalidade?4:0)+(v.ap?2:0)+(v.marc?2:0)+(v.qt||v.modal!=='PET'?2:0);
+  const pct=Math.min(pts,100);
+  $('meter').style.width=pct+'%';
+  $('meter').style.background=pct<50?'var(--danger)':pct<80?'var(--warn)':'var(--ok)';
+  $('meter-l').textContent=pct<50?'Incompleto':pct<80?'Razoável':'Completo';
+
+  // alertas
+  const a=[];
+  const todoTexto=textos.map(k=>v[k]).join(' ');
+  const ionizante=['RX','TC','ANGIOTC','MMG','PET'].includes(v.modal);
+  const iodado=['TC','ANGIOTC'].includes(v.modal)&&(v.contraste==='com'||v.contraste==='radiologista'||v.modal==='ANGIOTC');
+  const gado=v.modal==='RM'&&(v.contraste==='com'||v.contraste==='radiologista');
+  const tfg=v.tfg===''?null:Number(v.tfg);
+
+  if(!v.nome)a.push(['danger','Falta o nome do paciente','Escreva o nome completo, exatamente como no documento. Nome errado gera confusão na hora de realizar e entregar o exame.']);
+  else if(v.nome.split(/\s+/).length<2)a.push(['warn','Nome incompleto','Use o nome completo que consta no documento de identificação.']);
+  if(raiox.test(todoTexto))a.push(['warn','"Raio-X" é termo leigo','Entre médicos, escreva "radiografia": radiografia de tórax, radiografia simples do abdome.']);
+  if(!v.queixa)a.push(['danger','Falta a queixa principal','A indicação clínica começa pela queixa principal: dor abdominal, hematúria, dispneia.']);
+  else if(!v.inicio&&!v.tempo)a.push(['warn','Informe o tempo de evolução','Dor há 4 horas ou há 5 anos muda a interpretação e até a forma de fazer o exame.']);
+  if(v.queixa&&!v.carac&&!v.secund&&modo==='det')a.push(['warn','Faltam caracterizadores','Informe localização e sinais associados, como febre, descompressão brusca ou Giordano.']);
+  if(vagos.test(todoTexto))a.push(['warn','Termo vago no pedido','Evite "rotina", "check-up" ou "a/e". Escreva o sintoma e a dúvida concreta.']);
+  if(cid.test(todoTexto))a.push(['warn','Código no lugar de texto','Evite códigos como o CID na indicação clínica. Descreva o quadro por extenso.']);
+  const siglas=[...new Set((todoTexto.match(/\b[A-ZÀ-Ú]{2,6}\b/g)||[]).filter(s=>!siglasComuns.has(s)))];
+  if(siglas.length)a.push(['warn','Siglas pouco usuais: '+siglas.slice(0,5).join(', '),'Siglas específicas podem ser desconhecidas pelo radiologista. Escreva por extenso.']);
+  if(!v.pergunta)a.push(['warn','Sem pergunta clínica','Uma pergunta objetiva orienta o laudo e aumenta a chance de ele mudar sua conduta.']);
+  if(v.onco&&!v.finalidade)a.push(['danger','Estadiamento ou reestadiamento?','No paciente oncológico, a finalidade muda o protocolo do exame. Informe sempre.']);
+  if(modo==='det'&&v.onco&&!v.marc)a.push(['warn','Marcadores tumorais','Se houver, informe os últimos valores e a tendência. Um CEA voltando a subir sugere recidiva.']);
+  if(modo==='det'&&v.onco&&!v.ap)a.push(['warn','Anatomopatológico','Tipo histológico, subtipo e grau (Gleason, Fuhrman) indicam a agressividade da neoplasia.']);
+  if(modo==='det'&&v.modal==='PET'&&!v.qt)a.push(['warn','PET-CT sem dados do tratamento','Informe esquema, ciclos e data de término da quimioterapia: o intervalo interfere diretamente na imagem.']);
+  if(modo==='det'&&v.onco&&!v.cirurgia)a.push(['warn','Cirurgias prévias','Informe a cirurgia oncológica (ex.: colectomia direita) para o radiologista avaliar recidiva local e anastomoses.']);
+  if(v.modal==='TC'&&!v.contraste)a.push(['warn','Contraste não definido','Informe se deseja com ou sem contraste, ou deixe a critério do radiologista.']);
+  if(v.gest&&ionizante)a.push(['warn','Gestação e radiação ionizante','Veja se US ou RM sem contraste respondem à pergunta. Se a TC for o melhor exame, mantenha e informe a gestação.']);
+  if(v.gest&&gado)a.push(['danger','Gadolínio na gestação','Evite, salvo se essencial para a conduta. Considere RM sem contraste.']);
+  if(iodado&&(v.ira||(tfg!==null&&tfg<30&&!v.dialise)))a.push(['danger','Função renal e contraste iodado','TFG < 30 ou lesão renal aguda: pese risco e benefício, considere exame sem contraste ou hidratação EV.']);
+  else if(iodado&&tfg!==null&&tfg<45)a.push(['warn','TFG entre 30 e 45','Sem necessidade de profilaxia rotineira, mas mantenha o paciente hidratado.']);
+  if(iodado&&v.metf&&(v.ira||(tfg!==null&&tfg<30)))a.push(['warn','Metformina','Suspender no dia do exame e por 48 h; reavaliar função renal antes de reintroduzir.']);
+  if(iodado&&v.metf&&tfg===null&&!v.ira)a.push(['warn','Metformina sem TFG','Informe a TFG: a suspensão só é necessária se TFG < 30 ou lesão renal aguda.']);
+  if((iodado||gado)&&v.alergia)a.push(['danger','Reação prévia a contraste','Descreva a reação no pedido. Considere exame alternativo ou pré-medicação conforme protocolo.']);
+  if(gado&&(v.dialise||(tfg!==null&&tfg<30)))a.push(['warn','Gadolínio com TFG < 30','Use agente do grupo II e só se o contraste mudar a conduta.']);
+  if(v.modal==='RM'&&v.mp)a.push(['danger','Dispositivo ou implante na RM','Confirme se é condicional para RM antes de agendar.']);
+  if(v.modal==='RM'&&v.claus)a.push(['warn','Claustrofobia','Avise o serviço para programar sedação ou equipamento adequado.']);
+  if(v.carater==='Emergência'&&v.modal==='RM')a.push(['warn','RM na emergência','Exame longo e de acesso limitado. Confira se a TC ou a US respondem mais rápido.']);
+  if(!a.length&&pct>=80)a.push(['ok','Pedido completo','Tudo o que o radiologista precisa está aqui.']);
+  $('alerts').innerHTML=a.map(([t,b,m])=>`<div class="alert ${t}"><b>${esc(b)}</b>${m}</div>`).join('');
+  return linhas;
+}
+fields.forEach(f=>{$(f).addEventListener('input',build);$(f).addEventListener('change',build)});
+
+$('copy').addEventListener('click',async()=>{
+  const l=build();
+  const txt='REQUISIÇÃO DE EXAME ('+val('carater')+')\n'+l.filter(x=>x[1]).map(([k,x])=>k+': '+x).join('\n');
+  try{await navigator.clipboard.writeText(txt)}catch(e){
+    const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove();
+  }
+  $('toast').textContent='Pedido copiado';setTimeout(()=>$('toast').textContent='',2200);
+});
+function limpar(){fields.forEach(f=>{const e=$(f);if(e.type==='checkbox')e.checked=false;else if(e.tagName==='SELECT')e.selectedIndex=0;else e.value=''})}
+$('limpar').addEventListener('click',()=>{limpar();build()});
+const EXEMPLOS={
+  urg:{nome:'Ana Beatriz Fernandes Costa',idade:'27',sexo:'Feminino',modal:'USD',regiao:'pelve, via transvaginal',carater:'Urgência',
+    queixa:'Dor abdominal',inicio:'agudo',tempo:'há 6 horas',carac:'súbita, em fossa ilíaca direita',secund:'Náuseas. Sem febre. Descompressão brusca negativa.',
+    hipotese:'Torção anexial direita; cisto ovariano hemorrágico. Apendicite menos provável.',pergunta:'Há massa anexial ou sinais de torção (fluxo ovariano)? Há líquido livre? Apêndice visível?',
+    lab:'Beta-hCG negativo. Leucócitos 9.800.',previos:'Nenhum',trat:'Dipirona EV sem melhora'},
+  onc:{nome:'José Carlos Medeiros de Oliveira',idade:'64',sexo:'Masculino',modal:'TC',regiao:'tórax, abdome e pelve',contraste:'com',carater:'Eletivo',
+    queixa:'Elevação de CEA',inicio:'subagudo',tempo:'últimos 3 meses',carac:'Assintomático',secund:'Sem perda de peso. Exame físico sem alterações.',
+    hipotese:'Recidiva de adenocarcinoma de cólon',pergunta:'Há recidiva local na anastomose? Há metástases hepáticas, pulmonares ou peritoneais?',
+    previos:'TC de 03/2026 sem sinais de doença',cirurgia:'Colectomia direita em 03/2025',onco:true,finalidade:'Reestadiamento',
+    ap:'Adenocarcinoma de cólon ascendente, moderadamente diferenciado, pT3N1',marc:'CEA 12,3 (pré-operatório) → 2,1 (06/2025) → 8,4 (09/2026)',qt:'FOLFOX adjuvante, 12 ciclos, término em 10/2025',tfg:'78'}
+};
+document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>{
+  limpar();Object.entries(EXEMPLOS[b.dataset.ex]).forEach(([k,x])=>{const e=$(k);if(e.type==='checkbox')e.checked=x;else e.value=x});build();
+}));
+build();
+
+
+// ---------- PDF ----------
+function latin(s){return String(s).replace(/→/g,'->').replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/≈/g,'~').replace(/²/g,'2').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF–—•]/g,'')}
+function slug(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)}
+function toast(m){$('toast').textContent=m;setTimeout(()=>$('toast').textContent='',3000)}
+async function gerarPDF(){
+  if(!window.jspdf){toast('Não foi possível carregar o gerador de PDF');return}
+  const linhas=build().filter(x=>x[1]);
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});
+  const M=20,W=210-2*M,LX=M,VX=M+42,VW=W-42;let y=24;
+  const hoje=new Date().toLocaleDateString('pt-BR');
+  doc.setFont('helvetica','bold');doc.setFontSize(17);doc.setTextColor(22,36,58);
+  doc.text(latin('Requisição de exame de imagem'),M,y);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(91,107,126);
+  doc.text(latin(val('carater')+'   |   '+hoje),210-M,y,{align:'right'});
+  y+=5;doc.setDrawColor(11,114,133);doc.setLineWidth(.7);doc.line(M,y,210-M,y);y+=9;
+  linhas.forEach(([k,v])=>{
+    doc.setFontSize(10.5);
+    const t=doc.splitTextToSize(latin(v),VW);const hgt=t.length*5.2;
+    if(y+hgt>250){doc.addPage();y=24}
+    doc.setFont('helvetica','bold');doc.setTextColor(91,107,126);doc.text(latin(k),LX,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(22,36,58);doc.text(t,VX,y);
+    y+=hgt+3.5;doc.setDrawColor(201,211,219);doc.setLineWidth(.2);doc.line(M,y-2.2,210-M,y-2.2);y+=2.5;
+  });
+  // assinatura
+  let sy=Math.max(y+22,255);if(sy>270){doc.addPage();sy=60}
+  doc.setDrawColor(22,36,58);doc.setLineWidth(.3);doc.line(210-M-80,sy,210-M,sy);
+  doc.setFontSize(10);doc.setTextColor(22,36,58);doc.setFont('helvetica','normal');
+  doc.text(latin(val('medico')||'Médico solicitante'),210-M-40,sy+5,{align:'center'});
+  if(val('crm'))doc.text(latin(val('crm')),210-M-40,sy+10,{align:'center'});
+  const n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(140,150,160);
+    doc.text(latin('Gerado em '+hoje+' pelo app Pedir Radiologia, Radiologia UFRN'),M,287);
+    if(n>1)doc.text(i+'/'+n,210-M,287,{align:'right'});}
+  const nome='requisicao'+(val('nome')?'-'+slug(val('nome')):'')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+  const blob=doc.output('blob');
+  const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+  if(dl){
+    try{await dl.save({filename:nome,data:blob});toast('PDF salvo')}
+    catch(e){if(e&&e.code==='declined')toast('Download cancelado');else if(e&&e.code==='rate_limited')toast('Aguarde e tente de novo');else toast('Não foi possível salvar o PDF aqui')}
+  }else{doc.save(nome);toast('PDF gerado')}
+}
+$('pdf').addEventListener('click',gerarPDF);
+
+// ---------- Guia ----------
+const REG={abd:'Abdome',mul:'Mulher e mama',uro:'Urologia',neu:'Neuro e coluna',tor:'Tórax e vascular',ped:'Pediatria',out:'Emergência e outros'};
+const S=[
+ ['abd','Dor em fossa ilíaca direita, suspeita de apendicite','TC de abdome e pelve com contraste EV','Crianças, gestantes e mulheres jovens magras: US primeiro. Gestante com US inconclusivo: RM sem contraste.','Radiografia simples de abdome.','apendicite fid dor abdominal'],
+ ['abd','Dor em hipocôndrio direito, suspeita de colecistite','US de abdome superior','Cintilografia de vias biliares ou RM se o US for duvidoso.','TC como primeiro exame: menos sensível para cálculos.','colecistite vesícula colelitíase murphy'],
+ ['abd','Icterícia, suspeita de obstrução biliar','US de abdome superior','Colangio-RM para definir nível e causa. CPRE quando houver intenção terapêutica.','Pedir colangio-RM antes do US sem motivo.','icterícia colestase coledocolitíase bilirrubina'],
+ ['abd','Pancreatite aguda','Diagnóstico clínico e laboratorial; US na admissão para pesquisar litíase biliar','TC com contraste após 72 a 96 h se houver piora clínica ou dúvida diagnóstica.','TC precoce de rotina: subestima necrose e raramente muda a conduta.','pancreatite lipase amilase'],
+ ['abd','Dor em fossa ilíaca esquerda, suspeita de diverticulite','TC de abdome e pelve com contraste EV','US em mãos experientes ou em gestantes.','Enema opaco e colonoscopia na fase aguda.','diverticulite fie'],
+ ['abd','Suspeita de obstrução intestinal','TC de abdome e pelve com contraste EV','Radiografia de abdome como triagem inicial, se disponível rapidamente.','Contraste oral positivo em obstrução alta de alto grau.','obstrução intestinal distensão vômito'],
+ ['abd','Enzimas hepáticas alteradas ou suspeita de esteatose','US de abdome superior','Elastografia para estimar fibrose.','TC para rastrear esteatose.','esteatose tgo tgp fígado gordura'],
+ ['abd','Nódulo hepático incidental','RM de abdome superior com contraste','TC multifásica do fígado se RM indisponível ou contraindicada.','US isolado para caracterizar a lesão.','nódulo hepático incidentaloma fígado lesão focal'],
+ ['uro','Cólica renal, suspeita de litíase','TC de abdome e pelve sem contraste, baixa dose','US em gestantes, crianças e jovens com cólica recorrente.','TC com contraste como primeiro exame: pode mascarar o cálculo.','litíase cálculo renal cólica nefrolitíase'],
+ ['uro','Hematúria macroscópica em adulto','Urotomografia (TC trifásica)','US de rins e vias urinárias se houver contraindicação ao contraste; cistoscopia complementa.','Parar no US em paciente de risco.','hematúria sangue urina'],
+ ['uro','Dor escrotal aguda, suspeita de torção testicular','US do escroto com Doppler','Em alta suspeita clínica, a exploração cirúrgica não deve esperar o exame.','Atrasar a cirurgia para fazer imagem.','torção testicular escroto testículo'],
+ ['mul','Dor pélvica aguda em mulher em idade fértil','Beta-hCG e US transvaginal com Doppler','US por via abdominal se não houver atividade sexual. RM sem contraste se inconclusivo na gestação.','TC como primeiro exame.','dor pélvica torção anexial cisto'],
+ ['mul','Suspeita de gravidez ectópica','US transvaginal com beta-hCG quantitativo','Repetir beta-hCG e US em 48 h se gestação de localização desconhecida.','Descartar ectópica só porque o US não achou massa.','ectópica gestação beta hcg'],
+ ['mul','Sangramento uterino anormal','US transvaginal','RM de pelve para mapear miomas e adenomiose antes de cirurgia; histeroscopia para lesões endometriais.','TC de pelve.','sangramento uterino mioma adenomiose pólipo endométrio'],
+ ['mul','Massa anexial','US transvaginal com classificação O-RADS','RM de pelve com contraste para massas indeterminadas no US.','TC para caracterizar a massa.','massa anexial ovário cisto o-rads tumor'],
+ ['mul','Suspeita de endometriose profunda','US transvaginal com preparo intestinal ou RM de pelve com protocolo para endometriose','Escolha conforme a experiência local; ambos precisam de examinador treinado.','US transvaginal convencional sem preparo para mapear endometriose profunda.','endometriose dismenorreia dispareunia'],
+ ['mul','Nódulo mamário palpável','Abaixo de 30 anos: US. A partir de 30 anos: mamografia diagnóstica e US','RM de mamas em casos selecionados.','Pedir só US em mulher acima de 40 anos.','nódulo mama mamário'],
+ ['mul','Rastreamento de câncer de mama, risco habitual','Mamografia','RM anual em mulheres de alto risco. Idade de início conforme a diretriz adotada.','US isolado como rastreamento.','rastreamento mama mamografia screening'],
+ ['neu','Traumatismo cranioencefálico','TC de crânio sem contraste, se indicada por critérios clínicos (Canadian CT Head Rule)','RM para lesão axonal difusa em fase subaguda.','Radiografia de crânio.','tce trauma crânio cabeça'],
+ ['neu','Suspeita de AVC agudo','TC de crânio sem contraste imediata e angio-TC de crânio e cervical','RM com difusão quando disponível sem atrasar a trombólise.','Esperar a RM e perder a janela terapêutica.','avc derrame acidente vascular'],
+ ['neu','Cefaleia sem sinais de alarme','Nenhum exame de imagem','Com sinais de alarme (pior cefaleia da vida, déficit focal, febre, imunossupressão): TC sem contraste ou RM.','Imagem de rotina para enxaqueca típica.','cefaleia dor de cabeça enxaqueca'],
+ ['neu','Lombalgia aguda sem sinais de alarme (até 6 semanas)','Nenhum exame de imagem','Com sinais de alarme (déficit neurológico, febre, câncer, trauma importante): RM de coluna.','Radiografia ou RM de rotina: não mudam o desfecho e geram achados incidentais.','lombalgia dor lombar coluna'],
+ ['tor','Suspeita de tromboembolismo pulmonar','Estratificar (Wells/PERC) e D-dímero; angio-TC de tórax se alta probabilidade ou D-dímero positivo','Gestante: Doppler de membros inferiores se sintomas; cintilografia V/Q como alternativa à angio-TC.','Angio-TC em baixa probabilidade com D-dímero negativo.','tep embolia pulmonar d-dímero'],
+ ['tor','Suspeita de trombose venosa profunda','US com Doppler venoso','D-dímero para excluir em baixa probabilidade.','Flebografia.','tvp trombose panturrilha edema'],
+ ['tor','Suspeita de pneumonia','Radiografia de tórax PA e perfil','TC de tórax em imunossuprimidos ou evolução atípica. US pulmonar à beira-leito.','TC como primeiro exame.','pneumonia tosse febre'],
+ ['out','Trauma abdominal fechado','Instável: FAST. Estável: TC de abdome e pelve com contraste EV','eFAST para pneumotórax e hemotórax.','Levar paciente instável para a TC.','trauma fast abdominal fechado'],
+ ['out','Nódulo tireoidiano palpável','TSH e US de tireoide com classificação TI-RADS','Cintilografia se TSH baixo. PAAF conforme TI-RADS e tamanho.','TC ou RM para avaliar o nódulo.','tireoide nódulo ti-rads'],
+ ['ped','Invaginação intestinal','US de abdome','Redução com enema guiado por imagem, se indicada.','Radiografia simples isolada.','invaginação intussuscepção criança'],
+ ['ped','Vômitos em jato no lactente, suspeita de estenose do piloro','US de abdome (piloro)','Seriografia se US indisponível ou inconclusivo.','TC.','estenose piloro lactente vômito']
+];
+let filtro='all';
+const chips=$('chips');
+[['all','Todos'],...Object.entries(REG)].forEach(([k,n])=>{
+  const b=document.createElement('button');b.className='chip';b.textContent=n;b.setAttribute('aria-pressed',k==='all');
+  b.onclick=()=>{filtro=k;[...chips.children].forEach(c=>c.setAttribute('aria-pressed',c===b));renderS()};chips.appendChild(b);
+});
+function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function renderS(){
+  const q=norm($('busca').value.trim());
+  const list=S.filter(s=>(filtro==='all'||s[0]===filtro)&&(!q||norm(s.join(' ')).includes(q)));
+  $('scen').innerHTML=list.length?list.map(s=>`<details><summary><span class="t">${s[1]}</span><span class="first">${s[2]}</span><span class="reg">${REG[s[0]]}</span></summary>
+  <div class="body"><div><h4>Primeira linha</h4><p>${s[2]}</p></div><div><h4>Alternativa ou próximo passo</h4><p>${s[3]}</p></div><div><h4>Evite</h4><p class="avoid">${s[4]}</p></div></div></details>`).join('')
+  :'<p class="empty-state">Nenhum cenário encontrado. Tente outro termo, como "dor pélvica" ou "trauma".</p>';
+}
+$('busca').addEventListener('input',renderS);renderS();
+
+// ---------- Doses ----------
+const D=[['Ultrassonografia',0,'Sem radiação'],['Ressonância magnética',0,'Sem radiação'],['Radiografia de tórax',0.1,'≈ 10 dias'],['Mamografia',0.21,'≈ 7 semanas'],['Radiografia de coluna lombar',1.4,'≈ 6 meses'],['TC de crânio',1.6,'≈ 6 meses'],['TC de tórax',6.1,'≈ 2 anos'],['TC de abdome e pelve',7.7,'≈ 2,6 anos'],['Angio-TC coronária',8.7,'≈ 3 anos']];
+$('doses').innerHTML=D.map(([n,d,e])=>`<div class="dose-row"><span>${n}</span><div class="dose-track"><div class="dose-fill ${d===0?'zero':''}" style="width:${Math.max(d/9*100,d?1.2:0)}%"></div></div><span class="dose-val">${d?d.toLocaleString('pt-BR')+' mSv, '+e:e}</span></div>`).join('');
+
+// ---------- Quiz ----------
+const Q=[
+ ['Homem, 38 anos, dor lombar em cólica irradiada para a virilha, hematúria microscópica. Qual o primeiro exame?',['TC de abdome e pelve com contraste EV','TC de abdome e pelve sem contraste, baixa dose','Radiografia simples de abdome','Urografia excretora'],1,'A TC sem contraste de baixa dose é o padrão para litíase. O contraste pode esconder o cálculo dentro do sistema coletor.'],
+ ['Mulher, 45 anos, dor em hipocôndrio direito após refeição gordurosa, Murphy positivo. Qual o primeiro exame?',['US de abdome superior','TC de abdome com contraste','Colangio-RM','Radiografia de abdome'],0,'O US é o exame inicial para colecistite: alta sensibilidade para cálculos, sem radiação e disponível.'],
+ ['Mulher, 26 anos, dor pélvica súbita, atraso menstrual. Qual a conduta inicial de imagem?',['TC de pelve com contraste','RM de pelve','Beta-hCG e US transvaginal','Radiografia de abdome'],2,'Na mulher em idade fértil com dor pélvica aguda, dosar beta-hCG e fazer US transvaginal é o primeiro passo, pensando em ectópica.'],
+ ['Homem, 30 anos, lombalgia há 10 dias após carregar peso, sem déficit neurológico, sem febre. O que pedir?',['RM de coluna lombar','Radiografia de coluna lombar','TC de coluna lombar','Nenhum exame de imagem'],3,'Lombalgia aguda sem sinais de alarme não precisa de imagem nas primeiras 6 semanas.'],
+ ['Gestante de 20 semanas com suspeita de apendicite. Qual o primeiro exame?',['TC de abdome com contraste','US de abdome','RM com gadolínio','Radiografia de abdome'],1,'Na gestante começa-se pelo US. Se inconclusivo, RM sem contraste.'],
+ ['Paciente com suspeita de TEP, escore de Wells baixo e D-dímero negativo. O que fazer?',['Angio-TC de tórax','Cintilografia V/Q','Doppler de membros inferiores','Nenhum exame de imagem; TEP praticamente excluído'],3,'Baixa probabilidade com D-dímero negativo exclui TEP com segurança, evitando radiação e contraste.'],
+ ['Paciente diabético com TFG 55 em uso de metformina vai fazer TC com contraste. O que fazer com a metformina?',['Suspender 48 h antes e depois','Manter; não é necessário suspender','Trocar por insulina por uma semana','Contraindicar o contraste'],1,'Pelo manual do ACR, a metformina só precisa ser suspensa se TFG < 30 ou lesão renal aguda.'],
+ ['Qual a forma correta de solicitar o exame?',['"Raio-X de tórax"','"RX tórax"','"Radiografia de tórax PA e perfil"','"Chapa do pulmão"'],2,'"Raio-X" é termo leigo. Entre médicos, o nome correto é radiografia, com a incidência desejada.'],
+ ['Paciente com adenocarcinoma de cólon já operado, CEA voltando a subir. Qual informação é essencial no pedido da TC?',['Que é um exame de reestadiamento, com a cirurgia feita e os valores de CEA','Apenas o CID da neoplasia','Apenas "controle"','Nada além do nome do exame'],0,'Finalidade (reestadiamento), cirurgia prévia e a tendência do marcador orientam o protocolo e a busca por recidiva local e anastomoses.'],
+ ['Por que informar a data de término da quimioterapia num pedido de PET-CT?',['Para cobrança do convênio','Porque o intervalo desde a quimioterapia influi diretamente no aspecto da imagem','Porque a quimioterapia contraindica o PET-CT','Não é necessário informar'],1,'Captação inflamatória e resposta metabólica dependem do tempo desde o último ciclo. O dado muda a interpretação.'],
+ ['Na indicação clínica, qual informação vem primeiro?',['O CID','A queixa principal, com início e tempo de evolução','A lista de medicamentos','O nome do médico assistente'],1,'Queixa principal e seus caracterizadores primários (início, tempo, localização) abrem a indicação clínica.'],
+ ['Qual pedido tem mais chance de gerar um laudo útil?',['"US de abdome: rotina"','"TC de abdome: dor abdominal"','"TC abdome e pelve c/ contraste: dor em FID há 24 h, febre, leucocitose. HD: apendicite. Há complicação?"','"TC de abdome: a/e"'],2,'Dados clínicos, hipótese e pergunta orientam protocolo e interpretação.']
+];
+let qi=0,acertos=0;
+function renderQ(){
+  const c=$('qcard');
+  if(qi>=Q.length){
+    c.innerHTML=`<p class="score">${acertos} de ${Q.length}</p><p>${acertos===Q.length?'Todos certos.':acertos>=Q.length-2?'Bom resultado. Revise as explicações dos que errou.':'Vale revisar a aba "Qual exame pedir?" e tentar de novo.'}</p><div class="btns"><button class="btn" id="rq">Recomeçar</button></div>`;
+    $('rq').onclick=()=>{qi=0;acertos=0;renderQ()};return;
+  }
+  const [t,o,r,e]=Q[qi];
+  c.innerHTML=`<div class="qprog">Caso ${qi+1} de ${Q.length}</div><p class="qtext">${t}</p><div class="opts">${o.map((x,i)=>`<button class="opt" data-i="${i}">${x}</button>`).join('')}</div><div class="explain" id="exp" role="status"></div>`;
+  c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;c.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.i===r)x.classList.add('right')});
+    if(i===r)acertos++;else b.classList.add('wrong');
+    const ex=$('exp');ex.innerHTML=`<p><b>${i===r?'Correto.':'Não é o melhor.'}</b> ${e}</p><div class="btns"><button class="btn" id="nq">${qi+1<Q.length?'Próximo caso':'Ver resultado'}</button></div>`;ex.classList.add('show');
+    $('nq').onclick=()=>{qi++;renderQ()};$('nq').focus();
+  });
+}
+renderQ();
+</script>
+</body>
+</html>
