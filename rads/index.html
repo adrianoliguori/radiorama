@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RADS · radiorama</title>
+<meta name="description" content="Classificações TI-RADS, VI-RADS e APENDIC-RADS com cálculo da categoria e conduta.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F8;--surface:#FFFFFF;--ink:#122536;--muted:#56697A;--line:#D6DFE6;
+  --iodo:#A8680A;--iodo-soft:#FBF1DE;--gado:#6A4FB3;--gado-soft:#EFEBFA;
+  --alert:#B42318;--alert-soft:#FDECEA;--ok:#2E7D4F;--ok-soft:#E6F4EC;--warn:#9A6700;--warn-soft:#FFF4D6;
+  --font:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1A24;--surface:#152532;--ink:#E6EEF3;--muted:#93A6B5;--line:#26394A;
+  --iodo:#E6A43A;--iodo-soft:#33250F;--gado:#B3A0F2;--gado-soft:#262040;
+  --alert:#F07167;--alert-soft:#3B1C1A;--ok:#6CC08B;--ok-soft:#15301F;--warn:#E8B949;--warn-soft:#332810;}}
+:root[data-theme="dark"]{
+  --bg:#0E1A24;--surface:#152532;--ink:#E6EEF3;--muted:#93A6B5;--line:#26394A;
+  --iodo:#E6A43A;--iodo-soft:#33250F;--gado:#B3A0F2;--gado-soft:#262040;
+  --alert:#F07167;--alert-soft:#3B1C1A;--ok:#6CC08B;--ok-soft:#15301F;--warn:#E8B949;--warn-soft:#332810;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.5;padding-bottom:84px}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+header.top{padding:28px 0 8px}
+.brand{font-size:44px;line-height:1;margin:0;letter-spacing:-0.02em;font-weight:700}
+.brand span.i{color:var(--iodo)}.brand span.g{color:var(--gado)}
+.sub{margin:8px 0 0;color:var(--muted);font-size:16px}
+h2{font-size:28px;line-height:1.15;margin:26px 0 6px;letter-spacing:-0.01em}
+h3{font-size:20px;margin:26px 0 8px}
+p{margin:0 0 12px}
+.lead{color:var(--muted);margin-bottom:18px}
+small,.hint{color:var(--muted);font-size:14px}
+.panel{display:none}.panel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted)}
+input[type=number],select{font:inherit;font-size:19px;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;font-variant-numeric:tabular-nums}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--gado);outline-offset:2px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{flex:1;font:inherit;font-size:17px;padding:10px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.checks{display:flex;flex-direction:column;gap:2px;margin:16px 0}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.checks input{width:20px;height:20px;margin-top:2px;accent-color:var(--ink);flex:none}
+.result{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:18px;margin:18px 0}
+.big{font-size:56px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.unit{font-size:15px;color:var(--muted)}
+.chip{display:inline-block;font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--ink);color:var(--bg);margin-left:8px;vertical-align:middle}
+.scale{position:relative;margin:22px 0 6px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden}
+.bar i{display:block;height:100%}
+.ticks{display:flex;font-size:12px;color:var(--muted);margin-top:4px}
+.ticks span{text-align:center}
+.marker{position:absolute;top:-8px;width:4px;height:30px;background:var(--ink);border-radius:2px;transform:translateX(-2px);transition:left .35s ease}
+.card{border-left:5px solid var(--line);background:var(--surface);border-radius:4px 12px 12px 4px;padding:14px 16px;margin:12px 0}
+.card.iodo{border-color:var(--iodo)}.card.gado{border-color:var(--gado)}.card.met{border-color:var(--muted)}
+.card h4{margin:0 0 6px;font-size:18px}
+.card.iodo h4{color:var(--iodo)}.card.gado h4{color:var(--gado)}
+.card ul{margin:6px 0 0;padding-left:20px}.card li{margin:4px 0}
+.status{display:inline-block;font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.s-ok{background:var(--ok-soft);color:var(--ok)}.s-warn{background:var(--warn-soft);color:var(--warn)}.s-alert{background:var(--alert-soft);color:var(--alert)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.out{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.out b{display:block;font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1}
+.out.iodo b{color:var(--iodo)}.out.gado b{color:var(--gado)}
+.sec-iodo{border-top:4px solid var(--iodo);padding-top:4px;margin-top:28px}
+.sec-gado{border-top:4px solid var(--gado);padding-top:4px;margin-top:34px}
+.sec-iodo h3{color:var(--iodo);margin-top:14px}.sec-gado h3{color:var(--gado);margin-top:14px}
+details{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;color:var(--muted);flex:none}
+details[open] summary::after{content:"–"}
+details .body{padding:0 16px 14px}
+details .body ul,details .body ol{padding-left:20px;margin:6px 0}details .body li{margin:5px 0}
+.tag{font-size:13px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.t-leve{background:var(--ok-soft);color:var(--ok)}.t-mod{background:var(--warn-soft);color:var(--warn)}.t-grave{background:var(--alert-soft);color:var(--alert)}
+.ped{background:var(--gado-soft);color:var(--ink);border-radius:6px;padding:1px 6px;font-weight:700}
+.alertbox{background:var(--alert-soft);color:var(--ink);border-radius:12px;padding:14px 16px;margin:14px 0}
+.alertbox strong{color:var(--alert)}
+.tablewrap{overflow-x:auto;margin:10px 0;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:700;font-size:14px}
+tr:last-child td{border-bottom:0}
+footer{margin:40px 0 20px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+footer ul{padding-left:18px;margin:6px 0}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1.5px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs .in{display:flex;max-width:760px;margin:0 auto}
+nav.tabs button{flex:1;font:inherit;font-size:14px;border:0;background:transparent;color:var(--muted);padding:12px 2px 14px;cursor:pointer;border-top:3px solid transparent}
+nav.tabs button[aria-selected=true]{color:var(--ink);font-weight:700;border-top-color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.marker{transition:none}}
+.subtabs{margin:6px 0 18px;max-width:480px}
+.subtabs button{font-size:15px;padding:10px 4px}
+.lv0{background:#56697A}
+.report{white-space:pre-wrap;font-family:inherit;font-size:15px;line-height:1.5;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;margin:8px 0}
+.btn{font:inherit;font-size:16px;font-weight:700;border:0;border-radius:10px;padding:10px 16px;background:var(--ink);color:var(--bg);cursor:pointer}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1;min-width:150px}
+.rads{display:none}.rads.active{display:block}
+fieldset{border:0;margin:0 0 18px;padding:0}
+legend{font-weight:700;font-size:18px;margin-bottom:6px;padding:0}
+.opts{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.opts label{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.opts label:last-child{border-bottom:0}
+.opts label:has(input:checked){background:var(--bg)}
+.opts input{width:20px;height:20px;margin-top:2px;accent-color:var(--ink);flex:none}
+.opts .txt{flex:1}
+.opts .txt small{display:block;color:var(--muted);font-size:14px;line-height:1.35;margin-top:2px}
+.opts .pts{font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);flex:none;min-width:24px;text-align:right}
+.opts label.dis{opacity:.45;cursor:not-allowed}
+.sticky-res{position:sticky;top:8px;z-index:5}
+.tr{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tr .lvl{font-size:44px;font-weight:700;line-height:1;padding:6px 14px;border-radius:12px;color:#fff;font-variant-numeric:tabular-nums}
+.lv1{background:#2E7D4F}.lv2{background:#5E9A3A}.lv3{background:#B08A00}.lv4{background:#D2691E}.lv5{background:#B42318}
+.tr .meta{flex:1;min-width:160px}
+.tr .meta b{display:block;font-size:19px}
+@media (max-width:420px){.brand{font-size:38px}.split{grid-template-columns:1fr}nav.tabs button{font-size:13px}}
+.home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="home" href="/">← todas as ferramentas</a>
+  <h1 class="brand">radi<span class="i">o</span>ram<span class="g">a</span></h1>
+  <p class="sub">Classificações RADS: marque os achados e veja a categoria e a conduta.</p>
+</div></header>
+
+<main class="wrap">
+<section id="tirads" class="panel active" aria-labelledby="h-tirads">
+  <h2 id="h-tirads">TI-RADS</h2>
+    <p class="lead">ACR TI-RADS (2017) para nódulos tireoidianos. Marque um item por grupo; em focos ecogênicos, marque todos que houver.</p>
+    <div class="result sticky-res" id="tiOut"></div>
+    <div id="tiForm"></div>
+    <label class="f" style="max-width:240px;margin-top:4px">Maior diâmetro do nódulo (cm)<input id="tiSize" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 1,6"></label>
+    <h3>Condutas por categoria</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Categoria</th><th>Pontos</th><th>PAAF</th><th>Seguimento</th></tr></thead>
+      <tbody>
+        <tr><td>TR1 benigno</td><td>0</td><td>Não</td><td>Não</td></tr>
+        <tr><td>TR2 não suspeito</td><td>2</td><td>Não</td><td>Não</td></tr>
+        <tr><td>TR3 levemente suspeito</td><td>3</td><td>≥ 2,5 cm</td><td>≥ 1,5 cm: US em 1, 3 e 5 anos</td></tr>
+        <tr><td>TR4 moderadamente suspeito</td><td>4–6</td><td>≥ 1,5 cm</td><td>≥ 1,0 cm: US em 1, 2, 3 e 5 anos</td></tr>
+        <tr><td>TR5 altamente suspeito</td><td>≥ 7</td><td>≥ 1,0 cm</td><td>≥ 0,5 cm: US anual por até 5 anos</td></tr>
+      </tbody></table></div>
+    <p class="hint">Aumento significativo: ≥ 20% e ≥ 2 mm em duas dimensões, ou ≥ 50% no volume. Documente até 4 nódulos com maior pontuação.</p>
+  </div>
+</section>
+<section id="virads" class="panel" aria-labelledby="h-virads">
+  <h2 id="h-virads">VI-RADS</h2>
+    <p class="lead">VI-RADS (2018) para câncer de bexiga na RM multiparamétrica. Escolha o escore de cada sequência.</p>
+    <div class="result sticky-res" id="viOut"></div>
+    <div id="viForm"></div>
+    <p class="hint">A difusão é a sequência dominante. Se a difusão não for adequada, prevalece o DCE; se ambas forem inadequadas, o T2. Um VI-RADS ≥ 3 tem boa acurácia para invasão muscular; o ponto de corte ≥ 4 aumenta a especificidade.</p>
+  </div>
+</section>
+<section id="apendic" class="panel" aria-labelledby="h-apendic">
+  <h2 id="h-apendic">APENDIC-RADS</h2>
+    <p class="lead">APENDIC-RADS (Einstein, 2024) para apendicite aguda na ultrassonografia, em todas as idades.</p>
+    <div class="result sticky-res" id="apOut"></div>
+
+    <fieldset><legend>Apêndice visualizado</legend><div class="opts">
+      <label><input type="radio" name="ap-vis" value="none"><span class="txt">Não visualizado</span></label>
+      <label><input type="radio" name="ap-vis" value="complete"><span class="txt">Completamente</span></label>
+      <label><input type="radio" name="ap-vis" value="partial"><span class="txt">Parcialmente</span></label>
+    </div></fieldset>
+
+    <div id="apBody">
+      <fieldset><legend>Medidas</legend>
+        <div class="row">
+          <label class="f">Diâmetro transverso máximo sob compressão (mm)<input id="apDiam" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 7"></label>
+          <label class="f">Espessura da parede (mm)<input id="apWall" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 2"></label>
+        </div>
+        <div class="f" style="display:flex;flex-direction:column;gap:4px;font-size:15px;color:var(--muted);margin-top:12px;max-width:360px">Compressibilidade
+          <div class="seg" role="group" aria-label="Compressibilidade"><button type="button" id="apCompN" aria-pressed="true">Normal</button><button type="button" id="apCompA" aria-pressed="false">Ausente</button></div>
+        </div>
+      </fieldset>
+
+      <fieldset><legend>Sinais diretos</legend><div class="opts">
+        <label><input type="checkbox" class="ap" data-k="lith" data-g="d"><span class="txt">Apendicolito</span></label>
+        <label><input type="checkbox" class="ap" data-k="strat" data-g="d"><span class="txt">Perda da estratificação das camadas parietais</span></label>
+        <label><input type="checkbox" class="ap" data-k="echo" data-g="d"><span class="txt">Aumento da ecogenicidade periapendicular</span></label>
+        <label><input type="checkbox" class="ap" data-k="hyp" data-g="d"><span class="txt">Hiperemia parietal ao Doppler colorido</span></label>
+        <label><input type="checkbox" class="ap" data-k="absc" data-g="d"><span class="txt">Abscesso periapendicular</span></label>
+      </div><p class="hint" style="margin-top:6px">Espessura parietal &gt; 3 mm também conta como sinal direto (informe no campo acima).</p></fieldset>
+
+      <fieldset><legend>Sinais indiretos</legend><div class="opts">
+        <label><input type="checkbox" class="ap" data-k="fluid" data-g="i"><span class="txt">Líquido livre na cavidade abdominal</span></label>
+        <label><input type="checkbox" class="ap" data-k="fat" data-g="i"><span class="txt">Hiperecogenicidade da gordura pericecal</span></label>
+        <label><input type="checkbox" class="ap" data-k="pneumo" data-g="i"><span class="txt">Pneumoperitônio (gás fora da alça)</span></label>
+        <label><input type="checkbox" class="ap" data-k="nodes" data-g="i"><span class="txt">Linfonodomegalia locorregional</span></label>
+      </div></fieldset>
+    </div>
+
+    <h3>Texto para o laudo</h3>
+    <div class="report" id="apReport">Escolha se o apêndice foi visualizado.</div>
+    <button type="button" class="btn" id="apCopy">Copiar texto</button>
+
+    <h3>Critérios por categoria</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Categoria</th><th>Achados</th><th>Apendicite no estudo</th></tr></thead>
+      <tbody>
+        <tr><td>0 não visualizado</td><td>Apêndice não identificado; sinais não avaliáveis</td><td>4,5%</td></tr>
+        <tr><td>1 normal</td><td>Visualização completa, sem espessamento, sem sinais diretos ou indiretos</td><td>0,7%</td></tr>
+        <tr><td>2 provavelmente normal</td><td>Visualização parcial com aspecto normal; sinais indiretos podem estar presentes (exceto pneumoperitônio)</td><td>2,2%</td></tr>
+        <tr><td>3 não se pode excluir</td><td>Ao menos um sinal direto ou indireto (exceto abscesso periapendicular), sem o critério de diâmetro</td><td>11,5%</td></tr>
+        <tr><td>4 apendicite aguda</td><td>Diâmetro transverso sob compressão &gt; 6 mm com perda da compressibilidade; sinais diretos e indiretos podem estar presentes</td><td>93,5%</td></tr>
+      </tbody></table></div>
+    <p class="hint">Em 747 pacientes: AUC 0,950; sensibilidade 87,9%, especificidade 93,8%, VPP 93,5% e VPN 99% (categorias 1–2 contra 4). Estudo unicêntrico e retrospectivo, ainda sem validação externa.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
+  <p>Baseado em:</p>
+  <ul>
+    <li>Tessler FN et al. ACR TI-RADS: White Paper. J Am Coll Radiol 2017</li>
+    <li>Panebianco V et al. VI-RADS. Eur Urol 2018</li>
+    <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
+  </ul>
+</footer>
+</main>
+
+<nav class="tabs" aria-label="Classificações"><div class="in" role="tablist">
+  <button role="tab" data-t="tirads" aria-selected="true">TI-RADS</button>
+  <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
+  <button role="tab" data-t="apendic" aria-selected="false">APENDIC-RADS</button>
+</div></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const num=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)?v:NaN};
+
+/* Tabs */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.t));
+  window.scrollTo({top:0});
+  try{localStorage.setItem('rr-rads-tab',b.dataset.t)}catch(e){}
+}));
+try{const t=localStorage.getItem('rr-rads-tab');if(t){const b=document.querySelector(`nav.tabs button[data-t="${t}"]`);b&&b.click()}}catch(e){}
+
+/* ---------- RADS ---------- */
+function group(name,legend,opts,type='radio'){
+  return `<fieldset><legend>${legend}</legend><div class="opts">${opts.map((o,i)=>
+    `<label data-v="${o.v}"><input type="${type}" name="${name}" value="${i}"${o.def?' checked':''}><span class="txt">${o.t}${o.s?`<small>${o.s}</small>`:''}</span>${o.p!==undefined?`<span class="pts">${o.p}</span>`:''}</label>`).join('')}</div></fieldset>`;
+}
+
+/* TI-RADS */
+const TI={
+ comp:[{t:'Cístico ou quase completamente cístico',p:0,v:'cyst'},{t:'Espongiforme',s:'> 50% de pequenos espaços císticos; não soma pontos das demais categorias',p:0,v:'spong'},{t:'Misto sólido-cístico',p:1},{t:'Sólido ou quase completamente sólido',p:2}],
+ echo:[{t:'Anecoico',p:0},{t:'Hiperecoico ou isoecoico',p:1},{t:'Hipoecoico',p:2},{t:'Muito hipoecoico',s:'Mais hipoecoico que a musculatura pré-tireoidiana',p:3}],
+ shape:[{t:'Mais largo que alto',p:0},{t:'Mais alto que largo',s:'Medido no plano transversal',p:3}],
+ marg:[{t:'Liso',p:0},{t:'Mal definido',p:0},{t:'Lobulado ou irregular',p:2},{t:'Extensão extratireoidiana',p:3}],
+ foci:[{t:'Nenhum ou artefato em cauda de cometa grande',p:0,v:'none'},{t:'Macrocalcificações',p:1},{t:'Calcificações periféricas (em anel)',p:2},{t:'Focos ecogênicos puntiformes',p:3}],
+};
+$('tiForm').innerHTML=group('ti-comp','Composição',TI.comp)+group('ti-echo','Ecogenicidade',TI.echo)+group('ti-shape','Forma',TI.shape)+group('ti-marg','Margens',TI.marg)+group('ti-foci','Focos ecogênicos',TI.foci,'checkbox');
+const pick=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?+e.value:null};
+function tirads(){
+  const c=pick('ti-comp');
+  const cyst=c===0,spong=c===1;
+  // Cístico: ecogenicidade = anecoico
+  document.querySelectorAll('input[name="ti-echo"]').forEach((el,i)=>{
+    if(cyst){el.checked=i===0}
+    el.disabled=cyst||spong;el.closest('label').classList.toggle('dis',cyst||spong);
+  });
+  ['ti-shape','ti-marg','ti-foci'].forEach(n=>document.querySelectorAll(`input[name="${n}"]`).forEach(el=>{el.disabled=spong;el.closest('label').classList.toggle('dis',spong)}));
+  // Focos: "nenhum" exclui os demais
+  const fociEls=[...document.querySelectorAll('input[name="ti-foci"]')];
+  const e=pick('ti-echo'),s=pick('ti-shape'),m=pick('ti-marg');
+  const f=fociEls.filter(x=>x.checked).map(x=>+x.value);
+  const out=$('tiOut');
+  if(c===null){out.innerHTML='<p class="hint" style="margin:0">Comece pela composição do nódulo.</p>';return}
+  let pts,missing=[];
+  if(spong){pts=0}
+  else{
+    if(e===null)missing.push('ecogenicidade');if(s===null)missing.push('forma');if(m===null)missing.push('margens');if(!f.length)missing.push('focos ecogênicos');
+    pts=TI.comp[c].p+(e!==null?TI.echo[e].p:0)+(s!==null?TI.shape[s].p:0)+(m!==null?TI.marg[m].p:0)+f.reduce((a,i)=>a+TI.foci[i].p,0);
+  }
+  const tr=pts===0?1:pts<=2?2:pts===3?3:pts<=6?4:5;
+  const names=['','benigno','não suspeito','levemente suspeito','moderadamente suspeito','altamente suspeito'];
+  const cut={3:[2.5,1.5,'US em 1, 3 e 5 anos'],4:[1.5,1.0,'US em 1, 2, 3 e 5 anos'],5:[1.0,0.5,'US anual por até 5 anos']};
+  const size=num($('tiSize'));
+  let rec;
+  if(tr<=2)rec='Sem PAAF e sem seguimento.';
+  else{const [fna,fu,sch]=cut[tr];
+    if(size>0){rec=size>=fna?`<b style="display:inline;font-size:inherit">PAAF indicada</b> (≥ ${fmt(fna,1)} cm).`:size>=fu?`Seguimento: ${sch}.`:`Abaixo do limite de seguimento (${fmt(fu,1)} cm): sem PAAF ou seguimento.`}
+    else rec=`PAAF se ≥ ${fmt(fna,1)} cm; seguimento se ≥ ${fmt(fu,1)} cm. Informe o tamanho para a conduta.`}
+  out.innerHTML=`<div class="tr"><span class="lvl lv${tr}">TR${tr}</span><div class="meta"><b>${names[tr]}</b><span class="unit">${pts} ${pts===1?'ponto':'pontos'}${missing.length?' até agora · falta '+missing.join(', '):''}</span></div></div><p style="margin:12px 0 0">${rec}</p>`;
+}
+$('tiForm').addEventListener('change',ev=>{
+  const t=ev.target;
+  if(t.name==='ti-comp'&&+t.value!==0){const a=document.querySelector('input[name="ti-echo"][value="0"]');if(a.checked)a.checked=false}
+  if(t.name==='ti-foci'){const els=[...document.querySelectorAll('input[name="ti-foci"]')];
+    if(+t.value===0&&t.checked)els.slice(1).forEach(x=>x.checked=false);
+    else if(t.checked)els[0].checked=false;}
+  tirads();
+});
+$('tiSize').addEventListener('input',tirads);
+tirads();
+
+/* VI-RADS */
+const VI={
+ t2:[
+  {t:'1',s:'Linha muscular hipointensa íntegra; lesão < 1 cm, exofítica, com ou sem pedículo e/ou camada interna espessada'},
+  {t:'2',s:'Linha muscular íntegra; lesão > 1 cm exofítica com pedículo e/ou camada interna espessada, ou lesão séssil com camada interna espessada hiperintensa'},
+  {t:'3',s:'Sem achados da categoria 2: lesão séssil sem pedículo nem camada interna espessada, sem ruptura clara da linha muscular'},
+  {t:'4',s:'Linha muscular interrompida, com tecido de sinal intermediário se estendendo à muscular própria'},
+  {t:'5',s:'Tumor de sinal intermediário se estende à gordura perivesical (toda a espessura da parede)'}],
+ dce:[
+  {t:'1',s:'Sem realce precoce da muscular própria; lesão < 1 cm com realce precoce da camada interna'},
+  {t:'2',s:'Sem realce precoce da muscular própria; lesão > 1 cm com realce precoce da camada interna'},
+  {t:'3',s:'Sem achados da categoria 2, sem ruptura clara da muscular própria hipointensa'},
+  {t:'4',s:'Realce precoce do tumor se estende focalmente à muscular própria'},
+  {t:'5',s:'Realce precoce do tumor se estende a toda a parede e à gordura perivesical'},
+  {t:'Inadequada',s:'Sequência não diagnóstica ou não realizada',v:'x'}],
+ dwi:[
+  {t:'1',s:'Muscular própria íntegra, hipointensa; lesão < 1 cm hiperintensa na DWI com ADC baixo, com ou sem pedículo'},
+  {t:'2',s:'Muscular própria íntegra; lesão > 1 cm hiperintensa com pedículo e/ou camada interna, ou lesão séssil com camada interna'},
+  {t:'3',s:'Sem achados da categoria 2, sem ruptura clara da muscular própria'},
+  {t:'4',s:'Tumor hiperintenso na DWI com ADC baixo se estende focalmente à muscular própria'},
+  {t:'5',s:'Tumor hiperintenso se estende a toda a parede e à gordura perivesical'},
+  {t:'Inadequada',s:'Sequência não diagnóstica (ex.: artefato) ou não realizada',v:'x'}],
+};
+$('viForm').innerHTML=group('vi-t2','T2 (morfologia)',VI.t2)+group('vi-dwi','Difusão (DWI/ADC)',VI.dwi)+group('vi-dce','Contraste dinâmico (DCE)',VI.dce);
+function virads(){
+  const t2=pick('vi-t2'),dwi=pick('vi-dwi'),dce=pick('vi-dce');
+  const ok=v=>v!==null&&v<5;
+  let final=null,basis='';
+  if(ok(dwi)){final=dwi+1;basis='definido pela difusão'}
+  else if(dwi===null){}
+  else if(ok(dce)){final=dce+1;basis='difusão inadequada: definido pelo DCE'}
+  else if(dce===5&&t2!==null){final=t2+1;basis='difusão e DCE inadequados: definido pelo T2'}
+  const out=$('viOut');
+  if(final===null){
+    const miss=[t2===null&&'T2',dwi===null&&'difusão',dwi===5&&dce===null&&'DCE'].filter(Boolean);
+    out.innerHTML=`<p class="hint" style="margin:0">Escolha o escore de ${miss.join(' e ')||'cada sequência'}.</p>`;return}
+  const mean=['','Invasão muscular muito improvável','Invasão muscular improvável','Invasão muscular incerta','Invasão muscular provável','Invasão da muscular e além da parede muito provável'];
+  out.innerHTML=`<div class="tr"><span class="lvl lv${final}">${final}</span><div class="meta"><b>VI-RADS ${final}</b><span class="unit">${mean[final]} · ${basis}</span></div></div>`;
+}
+$('viForm').addEventListener('change',virads);
+virads();
+
+/* APENDIC-RADS */
+let apNonComp=false;
+$('apCompN').onclick=()=>{apNonComp=false;$('apCompN').setAttribute('aria-pressed',true);$('apCompA').setAttribute('aria-pressed',false);apendic()};
+$('apCompA').onclick=()=>{apNonComp=true;$('apCompA').setAttribute('aria-pressed',true);$('apCompN').setAttribute('aria-pressed',false);apendic()};
+const AP_LBL={lith:'apendicolito',strat:'perda da estratificação parietal',echo:'aumento da ecogenicidade periapendicular',hyp:'hiperemia parietal ao Doppler',absc:'abscesso periapendicular',
+  fluid:'líquido livre na cavidade abdominal',fat:'hiperecogenicidade da gordura pericecal',pneumo:'pneumoperitônio',nodes:'linfonodomegalia locorregional'};
+const AP_NAME=['Apêndice não visualizado','Apêndice normal','Apêndice provavelmente normal','Apendicite não pode ser excluída','Apendicite aguda'];
+const AP_RATE=['4,5%','0,7%','2,2%','11,5%','93,5%'];
+const AP_LV=['lv0','lv1','lv2','lv3','lv5'];
+const AP_CONDUTA=[
+ 'Definir a probabilidade com escore clínico-laboratorial (ex.: AIR, AAS, Alvarado) e julgamento clínico. Baixa: alta com reavaliação programada. Intermediária ou alta: TC de abdome.',
+ 'Compatível com alta hospitalar, do ponto de vista da imagem.',
+ 'Definir a probabilidade com escore clínico-laboratorial e julgamento clínico. Baixa: alta com reavaliação programada. Intermediária ou alta: TC de abdome.',
+ 'Definir a probabilidade com escore clínico-laboratorial. Intermediária ou alta: TC de abdome. Se a suspeita clínica não for alta, os autores sugerem reavaliar em algumas horas.',
+ 'Seguir para tratamento.'];
+const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+function apendic(){
+  const v=(document.querySelector('input[name="ap-vis"]:checked')||{}).value;
+  const body=$('apBody');
+  body.querySelectorAll('input,button').forEach(el=>el.disabled=(v==='none'));
+  body.style.opacity=v==='none'?.45:1;
+  const out=$('apOut'),rep=$('apReport');
+  if(!v){out.innerHTML='<p class="hint" style="margin:0">Comece indicando se o apêndice foi visualizado.</p>';rep.textContent='Escolha se o apêndice foi visualizado.';return}
+  const diam=num($('apDiam')),wall=num($('apWall'));
+  const on=k=>document.querySelector(`.ap[data-k="${k}"]`).checked;
+  const direct=['lith','strat','echo','hyp','absc'].filter(on).map(k=>AP_LBL[k]);
+  if(wall>3)direct.unshift(`espessamento parietal (${fmt(wall,1)} mm)`);
+  const indirect=['fluid','fat','pneumo','nodes'].filter(on).map(k=>AP_LBL[k]);
+  const diamCrit=diam>6&&apNonComp;
+  let cat,why;
+  if(v==='none'){cat=0;why='apêndice não visualizado'}
+  else if(diamCrit){cat=4;why='diâmetro > 6 mm sob compressão com perda da compressibilidade'}
+  else if(on('absc')){cat=4;why='abscesso periapendicular (excluído da categoria 3)'}
+  else if(direct.length){cat=3;why='sinal direto presente sem o critério de diâmetro'}
+  else if(on('pneumo')){cat=3;why='pneumoperitônio (excluído da categoria 2)'}
+  else if(v==='complete'&&indirect.length){cat=3;why='sinal indireto com apêndice completamente visualizado'}
+  else if(v==='partial'){cat=2;why=indirect.length?'visualização parcial com aspecto normal; sinal indireto permitido nesta categoria':'visualização parcial com aspecto normal'}
+  else{cat=1;why='visualização completa, sem sinais diretos ou indiretos'}
+  let warn='';
+  if(v!=='none'&&diam>6&&!apNonComp)warn='<p class="hint" style="margin:10px 0 0">Diâmetro &gt; 6 mm, mas compressível: não preenche o critério da categoria 4 isoladamente.</p>';
+  if(v!=='none'&&apNonComp&&!(diam>0))warn='<p class="hint" style="margin:10px 0 0">Informe o diâmetro sob compressão para aplicar o critério da categoria 4.</p>';
+  out.innerHTML=`<div class="tr"><span class="lvl ${AP_LV[cat]}">${cat}</span><div class="meta"><b>${AP_NAME[cat]}</b><span class="unit">${why} · apendicite em ${AP_RATE[cat]} no estudo</span></div></div><p style="margin:12px 0 0">${AP_CONDUTA[cat]}</p>${warn}`;
+  // Laudo
+  let t='';
+  if(v==='none'){t='Apêndice cecal não caracterizado ao método.'}
+  else{
+    t=`Apêndice cecal visualizado ${v==='complete'?'em toda a sua extensão':'parcialmente'}`;
+    if(diam>0)t+=`, com diâmetro transverso máximo de ${fmt(diam,1)} mm sob compressão`;
+    t+=`, ${apNonComp?'não compressível':'compressível'}.`;
+    if(wall>0)t+=` Parede com ${fmt(wall,1)} mm de espessura.`;
+    const others=direct.filter(x=>!x.startsWith('espessamento'));
+    t+=others.length?` ${others.length>1?'Observam-se':'Observa-se'} ${list(others)}.`:' Sem apendicolito, hiperemia parietal ou alteração da ecogenicidade periapendicular.';
+  }
+  if(v!=='none'){
+    t+=indirect.length?` ${indirect.length>1?'Notam-se':'Nota-se'} ainda ${list(indirect)}.`:' Sem líquido livre, alteração da gordura pericecal, pneumoperitônio ou linfonodomegalia locorregional.';
+  }
+  t+=`\n\nConclusão: APENDIC-RADS ${cat}: ${AP_NAME[cat].toLowerCase()}.`;
+  rep.textContent=t;
+}
+document.querySelectorAll('input[name="ap-vis"],.ap').forEach(el=>el.addEventListener('change',apendic));
+['apDiam','apWall'].forEach(id=>$(id).addEventListener('input',apendic));
+$('apCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('apReport').textContent);$('apCopy').textContent='Texto copiado'}
+  catch(e){const r=document.createRange();r.selectNodeContents($('apReport'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('apCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('apCopy').textContent='Copiar texto',2000);
+};
+apendic();
+</script>
+</body>
+</html>
