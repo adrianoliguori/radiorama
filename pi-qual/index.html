@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI-QUAL v2 · radiorama</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <a href="/" class="text-slate-400 hover:text-white text-xs mr-1" title="Todas as ferramentas">← radiorama</a>
+                <div class="bg-blue-600 p-2 rounded-xl shadow-inner flex items-center justify-center">
+                    <i data-lucide="activity" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
+                        PI-QUAL v2 <span class="text-xs bg-blue-500/30 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded-full font-medium">ESUR 2024</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Calculadora de Qualidade de Imagem de Ressonância Magnética da Próstata</p>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="flex items-center bg-slate-800 p-1 rounded-xl text-xs sm:text-sm font-medium">
+                <button id="nav-calc-btn" onclick="switchTab('calc')" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Calculadora
+                </button>
+                <button id="nav-specs-btn" onclick="switchTab('specs')" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Diretrizes PI-RADS
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SECTION 1: CALCULATOR TAB -->
+        <div id="tab-calc" class="space-y-6">
+
+            <!-- Protocol Selection Banner -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="layers" class="w-5 h-5 text-blue-600"></i> Seleção do Protocolo de Exame
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">O PI-QUAL v2 aplica-se com ou sem meio de contraste intravenoso (DCE).</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Quick Fill / Clear Buttons -->
+                        <div class="flex items-center gap-1.5 border-r border-slate-200 pr-3 mr-1">
+                            <button onclick="toggleAllGlobal(true)" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition flex items-center gap-1" title="Marcar todos os itens do exame">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Preencher Ideal (3/3)
+                            </button>
+                            <button onclick="toggleAllGlobal(false)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium transition flex items-center gap-1" title="Desmarcar todos os itens">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpar
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center bg-slate-100 p-1 rounded-xl">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="protocol" value="bpMRI" onchange="toggleProtocol()" class="peer sr-only">
+                                <div class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition text-center">
+                                    Sem Contraste (bpMRI)
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="protocol" value="mpMRI" checked onchange="toggleProtocol()" class="peer sr-only">
+                                <div class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition text-center">
+                                    Multiparamétrica (mpMRI)
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sequence Evaluation Forms Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- T2-Weighted Imaging Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                    <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">T2-WI</span>
+                            <h3 class="font-semibold text-sm">Sequência T2</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleAll('t2')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-blue-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1 font-medium">
+                                <i data-lucide="check-square" class="w-3.5 h-3.5"></i> <span id="t2-toggle-btn-text">Marcar Tudo</span>
+                            </button>
+                            <span id="t2-score-badge" class="bg-blue-900/60 text-blue-300 border border-blue-500/30 font-bold text-xs px-2.5 py-1 rounded-lg">0 / 4</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 space-y-4">
+                        <!-- Prerequisites Box -->
+                        <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-semibold text-amber-900">Pré-requisito Essencial Técnicos:</span>
+                                    <p class="text-amber-800 text-[11px] mt-0.5">Se não for cumprido, a pontuação T2 torna-se automaticamente 0/4.</p>
+                                </div>
+                            </div>
+
+                            <label class="mt-2.5 flex items-center gap-2 text-slate-800 cursor-pointer pt-2 border-t border-amber-200/50">
+                                <input type="checkbox" id="t2-prereq" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                <span class="font-medium">Espessura de corte = 3 mm</span>
+                            </label>
+                        </div>
+
+                        <!-- Quality Criteria List -->
+                        <div class="space-y-2.5">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Critérios de Qualidade (Marque se presentes):</p>
+                            
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="t2-c1" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">T2 Axial: SNR Adequado</span>
+                                    <span class="text-slate-500 text-[11px]">Relação sinal-ruído suficiente em todas as regiões da imagem axial.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="t2-c2" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">T2 Axial: Delineamento Estrutural</span>
+                                    <span class="text-slate-500 text-[11px]">Capacidade de delimitar claramente cápsula, vesículas seminais e feixes.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="t2-c3" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">T2 Axial: Ausência de Artefatos Severos</span>
+                                    <span class="text-slate-500 text-[11px]">Sem artefatos de movimento ou digestivo significativos na região prostática.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="t2-c4" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Plano Ortogonal (Sagital/Coronal)</span>
+                                    <span class="text-slate-500 text-[11px]">SNR e resolução adequados sem artefatos significativos no 2º plano.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diffusion-Weighted Imaging Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                    <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-indigo-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">DWI</span>
+                            <h3 class="font-semibold text-sm">Difusão (DWI)</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleAll('dwi')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1 font-medium">
+                                <i data-lucide="check-square" class="w-3.5 h-3.5"></i> <span id="dwi-toggle-btn-text">Marcar Tudo</span>
+                            </button>
+                            <span id="dwi-score-badge" class="bg-indigo-900/60 text-indigo-300 border border-indigo-500/30 font-bold text-xs px-2.5 py-1 rounded-lg">0 / 4</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 space-y-4">
+                        <!-- Prerequisites Box -->
+                        <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-semibold text-amber-900">Pré-requisitos Essenciais Técnicos:</span>
+                                    <p class="text-amber-800 text-[11px] mt-0.5">Se algum não for cumprido, pontuação DWI = 0/4.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-2.5 space-y-1.5 border-t border-amber-200/50 pt-2">
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dwi-prereq1" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Espessura de corte ≤ 4 mm</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dwi-prereq2" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Alto valor b (≥ 1.400 s/mm², adquirido ou sintetizado)</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dwi-prereq3" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Mapa ADC com ≥ 2 valores b (até 1.000 s/mm²)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quality Criteria List -->
+                        <div class="space-y-2.5">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Critérios de Qualidade (Marque se presentes):</p>
+                            
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dwi-c1" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Alto b: Contraste e SNR Adequados</span>
+                                    <span class="text-slate-500 text-[11px]">Sinal e contraste suficientes nas imagens de alto b.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dwi-c2" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Mapa ADC: Diferenciação PZ de TZ/HPB</span>
+                                    <span class="text-slate-500 text-[11px]">Faixa de contraste suficiente no ADC para diferenciar Zona Periférica de ZT.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dwi-c3" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Ausência de Artefatos Significativos</span>
+                                    <span class="text-slate-500 text-[11px]">Sem distorção por ar retal (deslocamento &lt; 5mm em relação ao T2).</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dwi-c4" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Coincidência Anatômica</span>
+                                    <span class="text-slate-500 text-[11px]">Correspondência perfeita do ADC/alto b com a imagem T2 axial.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Contrast Enhancement Card -->
+                <div id="dce-card" class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden transition-all duration-300">
+                    <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">DCE</span>
+                            <h3 class="font-semibold text-sm">Contraste (DCE)</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleAll('dce')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-purple-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1 font-medium">
+                                <i data-lucide="check-square" class="w-3.5 h-3.5"></i> <span id="dce-toggle-btn-text">Marcar Tudo</span>
+                            </button>
+                            <span id="dce-score-badge" class="bg-purple-900/60 text-purple-300 border border-purple-500/30 font-bold text-xs px-2.5 py-1 rounded-lg">- (Incompleto)</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 space-y-4">
+                        <!-- Prerequisites Box -->
+                        <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-semibold text-amber-900">Pré-requisitos Essenciais DCE:</span>
+                                    <p class="text-amber-800 text-[11px] mt-0.5">Se algum falhar, a pontuação DCE torna-se '-'.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-2.5 space-y-1.5 border-t border-amber-200/50 pt-2">
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dce-prereq1" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Espessura de corte = 3 mm</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dce-prereq2" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Resolução temporal ≤ 15 segundos</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-slate-800 cursor-pointer">
+                                    <input type="checkbox" id="dce-prereq3" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                                    <span class="font-medium text-[11px]">Saturação de gordura ou subtração/mapas de calor</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Quality Criteria List -->
+                        <div class="space-y-2.5">
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Critérios de Qualidade (Ambos necessários para '+'):</p>
+                            
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dce-c1" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Realce e Ausência de Artefatos</span>
+                                    <span class="text-slate-500 text-[11px]">Realce do bolo contrastado adequado sem artefatos significativos na próstata.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                                <input type="checkbox" id="dce-c2" onchange="calculateScore()" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 mt-0.5">
+                                <div class="text-xs">
+                                    <span class="font-semibold text-slate-800 block">Identificação de Vasos Anatômicos</span>
+                                    <span class="text-slate-500 text-[11px]">Capacidade de identificar claramente vasos capsulares ou artéria pudenda.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Result Panel -->
+            <div id="result-panel" class="bg-white rounded-2xl shadow-md border-2 border-slate-200 p-6 transition-all duration-300">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5 w-full md:w-auto">
+                        <div id="result-score-circle" class="w-20 h-20 rounded-2xl bg-slate-100 flex flex-col items-center justify-center border border-slate-200 shrink-0">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Score</span>
+                            <span id="result-score-num" class="text-3xl font-extrabold text-slate-700">1</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="result-tag" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                                    Qualidade Inadequada
+                                </span>
+                                <span id="result-adjustment-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full border"></span>
+                            </div>
+                            <h3 id="result-title" class="text-lg font-bold text-slate-900 mt-1">Exame Inadequado</h3>
+                            <p id="result-description" class="text-xs text-slate-600 mt-0.5 max-w-xl">
+                                O exame não cumpre os requisitos técnicos/qualidade básicos. Recomenda-se repetir o exame.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Action Callout -->
+                    <div id="result-clinical-box" class="w-full md:w-80 bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs">
+                        <div class="flex items-center gap-2 font-bold text-slate-800 mb-1">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+                            <span>Implicação Clínica PI-RADS:</span>
+                        </div>
+                        <p id="result-clinical-text" class="text-slate-600 leading-relaxed text-[11px]">
+                            Quando a qualidade é inadequada (PI-QUAL 1), pontuações PI-RADS / Likert <strong>NÃO</strong> devem ser atribuídas aos achados.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Generated Report Accordion / Text Output -->
+                <div class="mt-6 pt-5 border-t border-slate-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="clipboard" class="w-4 h-4 text-blue-600"></i> Texto para Laudo Médico
+                        </span>
+                        <button onclick="copyReportText()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="copy-btn-text">Copiar Laudo</span>
+                        </button>
+                    </div>
+                    <textarea id="report-textarea" readonly class="w-full h-24 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: PI-RADS TECHNICAL GUIDANCE TAB -->
+        <div id="tab-specs" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i> Recomendação Técnica PI-RADS v2.1 vs PI-QUAL v2
+                </h2>
+                <p class="text-xs text-slate-500">
+                    Resumo dos parâmetros recomendados e dos critérios essenciais mínimos para aquisição de qualidade.
+                </p>
+            </div>
+
+            <!-- Table 1 & 2 Summary -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-700">
+                        <thead class="bg-slate-900 text-white uppercase text-[11px] tracking-wider">
+                            <tr>
+                                <th class="p-3.5">Parâmetro</th>
+                                <th class="p-3.5">T2-WI</th>
+                                <th class="p-3.5">DWI</th>
+                                <th class="p-3.5">DCE</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3.5 font-bold text-slate-900 bg-slate-50">Espessura de Corte Mínima (Essencial)</td>
+                                <td class="p-3.5 text-blue-700 font-bold">3 mm (sem espaço)</td>
+                                <td class="p-3.5 text-indigo-700 font-bold">≤ 4 mm (sem espaço)</td>
+                                <td class="p-3.5 text-purple-700 font-bold">3 mm (sem espaço)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3.5 font-bold text-slate-900 bg-slate-50">Valores b Mínimos</td>
+                                <td class="p-3.5 text-slate-400">-</td>
+                                <td class="p-3.5">Baixo: 0-100 | Alto: ≥ 1.400 s/mm²</td>
+                                <td class="p-3.5 text-slate-400">-</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3.5 font-bold text-slate-900 bg-slate-50">Resolução Temporal</td>
+                                <td class="p-3.5 text-slate-400">-</td>
+                                <td class="p-3.5 text-slate-400">-</td>
+                                <td class="p-3.5 text-purple-700 font-bold">≤ 15 segundos</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3.5 font-bold text-slate-900 bg-slate-50">Campo de Visão (FOV)</td>
+                                <td class="p-3.5">12 - 20 cm</td>
+                                <td class="p-3.5">16 - 22 cm</td>
+                                <td class="p-3.5">12 - 20 cm</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3.5 font-bold text-slate-900 bg-slate-50">Supressão de Gordura</td>
+                                <td class="p-3.5 text-slate-400">Não obrigatório</td>
+                                <td class="p-3.5">Obrigatório</td>
+                                <td class="p-3.5">Recomendado / Subtração</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initialize Lucide Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            calculateScore();
+        });
+
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            ['calc', 'specs'].forEach(id => {
+                const tabEl = document.getElementById(`tab-${id}`);
+                const btnEl = document.getElementById(`nav-${id}-btn`);
+                if (id === tabId) {
+                    tabEl.classList.remove('hidden');
+                    btnEl.className = "px-3.5 py-1.5 rounded-lg bg-blue-600 text-white transition flex items-center gap-1.5 shadow-sm";
+                } else {
+                    tabEl.classList.add('hidden');
+                    btnEl.className = "px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition flex items-center gap-1.5";
+                }
+            });
+        }
+
+        // Sequence specific check-all / uncheck-all helper
+        function toggleAll(seq) {
+            let ids = [];
+            if (seq === 't2') {
+                ids = ['t2-prereq', 't2-c1', 't2-c2', 't2-c3', 't2-c4'];
+            } else if (seq === 'dwi') {
+                ids = ['dwi-prereq1', 'dwi-prereq2', 'dwi-prereq3', 'dwi-c1', 'dwi-c2', 'dwi-c3', 'dwi-c4'];
+            } else if (seq === 'dce') {
+                ids = ['dce-prereq1', 'dce-prereq2', 'dce-prereq3', 'dce-c1', 'dce-c2'];
+            }
+
+            const allChecked = ids.every(id => {
+                const el = document.getElementById(id);
+                return el ? el.checked : false;
+            });
+
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = !allChecked;
+            });
+
+            calculateScore();
+        }
+
+        // Global Pre-fill or Clear all sequences
+        function toggleAllGlobal(checkState) {
+            const allIds = [
+                't2-prereq', 't2-c1', 't2-c2', 't2-c3', 't2-c4',
+                'dwi-prereq1', 'dwi-prereq2', 'dwi-prereq3', 'dwi-c1', 'dwi-c2', 'dwi-c3', 'dwi-c4',
+                'dce-prereq1', 'dce-prereq2', 'dce-prereq3', 'dce-c1', 'dce-c2'
+            ];
+            allIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = checkState;
+            });
+            calculateScore();
+        }
+
+        // Helper to update toggle button text based on selection state
+        function updateToggleBtnTexts() {
+            const checkSeq = (seq, ids) => {
+                const allChecked = ids.every(id => {
+                    const el = document.getElementById(id);
+                    return el ? el.checked : false;
+                });
+                const btnText = document.getElementById(`${seq}-toggle-btn-text`);
+                if (btnText) {
+                    btnText.innerText = allChecked ? "Desmarcar" : "Marcar Tudo";
+                }
+            };
+
+            checkSeq('t2', ['t2-prereq', 't2-c1', 't2-c2', 't2-c3', 't2-c4']);
+            checkSeq('dwi', ['dwi-prereq1', 'dwi-prereq2', 'dwi-prereq3', 'dwi-c1', 'dwi-c2', 'dwi-c3', 'dwi-c4']);
+            checkSeq('dce', ['dce-prereq1', 'dce-prereq2', 'dce-prereq3', 'dce-c1', 'dce-c2']);
+        }
+
+        // Toggle Protocol (bpMRI vs mpMRI)
+        function toggleProtocol() {
+            const protocol = document.querySelector('input[name="protocol"]:checked').value;
+            const dceCard = document.getElementById('dce-card');
+            
+            if (protocol === 'bpMRI') {
+                dceCard.classList.add('opacity-40', 'pointer-events-none', 'grayscale');
+            } else {
+                dceCard.classList.remove('opacity-40', 'pointer-events-none', 'grayscale');
+            }
+            calculateScore();
+        }
+
+        // Core PI-QUAL v2 Scoring Calculation Logic
+        function calculateScore() {
+            updateToggleBtnTexts();
+            const protocol = document.querySelector('input[name="protocol"]:checked').value;
+
+            // --- 1. Evaluate T2-WI ---
+            const t2Prereq = document.getElementById('t2-prereq').checked;
+            let t2Score = 0;
+            if (t2Prereq) {
+                const t2c1 = document.getElementById('t2-c1').checked ? 1 : 0;
+                const t2c2 = document.getElementById('t2-c2').checked ? 1 : 0;
+                const t2c3 = document.getElementById('t2-c3').checked ? 1 : 0;
+                const t2c4 = document.getElementById('t2-c4').checked ? 1 : 0;
+                t2Score = t2c1 + t2c2 + t2c3 + t2c4;
+            } else {
+                t2Score = 0;
+            }
+            document.getElementById('t2-score-badge').innerText = `${t2Score} / 4`;
+
+            // --- 2. Evaluate DWI ---
+            const dwiPrereq = document.getElementById('dwi-prereq1').checked &&
+                              document.getElementById('dwi-prereq2').checked &&
+                              document.getElementById('dwi-prereq3').checked;
+            let dwiScore = 0;
+            if (dwiPrereq) {
+                const dwic1 = document.getElementById('dwi-c1').checked ? 1 : 0;
+                const dwic2 = document.getElementById('dwi-c2').checked ? 1 : 0;
+                const dwic3 = document.getElementById('dwi-c3').checked ? 1 : 0;
+                const dwic4 = document.getElementById('dwi-c4').checked ? 1 : 0;
+                dwiScore = dwic1 + dwic2 + dwic3 + dwic4;
+            } else {
+                dwiScore = 0;
+            }
+            document.getElementById('dwi-score-badge').innerText = `${dwiScore} / 4`;
+
+            // --- 3. Evaluate DCE ---
+            const dcePrereq = document.getElementById('dce-prereq1').checked &&
+                              document.getElementById('dce-prereq2').checked &&
+                              document.getElementById('dce-prereq3').checked;
+            const dcec1 = document.getElementById('dce-c1').checked;
+            const dcec2 = document.getElementById('dce-c2').checked;
+            
+            let dcePlus = false;
+            if (protocol === 'mpMRI' && dcePrereq && dcec1 && dcec2) {
+                dcePlus = true;
+            }
+
+            const dceBadge = document.getElementById('dce-score-badge');
+            if (protocol === 'bpMRI') {
+                dceBadge.innerText = 'N/A (bpMRI)';
+                dceBadge.className = "bg-slate-800 text-slate-400 font-bold text-xs px-2.5 py-1 rounded-lg";
+            } else if (dcePlus) {
+                dceBadge.innerText = '+ (Ideal)';
+                dceBadge.className = "bg-emerald-900/80 text-emerald-300 border border-emerald-500/30 font-bold text-xs px-2.5 py-1 rounded-lg";
+            } else {
+                dceBadge.innerText = '- (Subótimo)';
+                dceBadge.className = "bg-rose-900/80 text-rose-300 border border-rose-500/30 font-bold text-xs px-2.5 py-1 rounded-lg";
+            }
+
+            // --- 4. Derive Final PI-QUAL v2 Score Based on Official Matrix (Table 3) ---
+            let finalScore = 1;
+            let statusTag = "";
+            let statusTitle = "";
+            let statusDesc = "";
+            let clinicalText = "";
+            let adjustmentText = "";
+            let isUpgrade = false;
+            let isDowngrade = false;
+
+            if (protocol === 'bpMRI') {
+                // Non-contrast Matrix:
+                if (t2Score <= 2 || dwiScore <= 2) {
+                    finalScore = 1;
+                } else if (t2Score === 4 && dwiScore === 4) {
+                    finalScore = 3;
+                } else {
+                    finalScore = 2;
+                }
+            } else {
+                // Multiparametric (mpMRI) Matrix based on Table 3:
+                if (!dcePlus) {
+                    // DCE is '-'
+                    if (t2Score === 4 && dwiScore === 4) {
+                        finalScore = 2; // DOWNGRADE from 3 to 2 due to DCE '-'
+                        isDowngrade = true;
+                        adjustmentText = "Rebaixado de 3 para 2 por DCE subótimo";
+                    } else if (t2Score >= 3 && dwiScore >= 3) {
+                        finalScore = 2;
+                    } else {
+                        finalScore = 1;
+                    }
+                } else {
+                    // DCE is '+'
+                    if (t2Score === 4 && dwiScore === 4) {
+                        finalScore = 3;
+                    } else if (t2Score >= 3 && dwiScore >= 3) {
+                        finalScore = 2;
+                    } else if ((t2Score === 4 && dwiScore <= 2) || (t2Score <= 2 && dwiScore === 4)) {
+                        finalScore = 2; // UPGRADE from 1 to 2 due to DCE '+'
+                        isUpgrade = true;
+                        adjustmentText = "Elevado de 1 para 2 por DCE de excelente qualidade";
+                    } else {
+                        finalScore = 1;
+                    }
+                }
+            }
+
+            // --- 5. Update UI Results Panel ---
+            const scoreNumEl = document.getElementById('result-score-num');
+            const scoreCircleEl = document.getElementById('result-score-circle');
+            const resultTagEl = document.getElementById('result-tag');
+            const resultTitleEl = document.getElementById('result-title');
+            const resultDescEl = document.getElementById('result-description');
+            const resultClinicalTextEl = document.getElementById('result-clinical-text');
+            const resultPanelEl = document.getElementById('result-panel');
+            const resultAdjustmentEl = document.getElementById('result-adjustment-badge');
+
+            scoreNumEl.innerText = finalScore;
+
+            if (isUpgrade) {
+                resultAdjustmentEl.classList.remove('hidden');
+                resultAdjustmentEl.innerText = adjustmentText;
+                resultAdjustmentEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+            } else if (isDowngrade) {
+                resultAdjustmentEl.classList.remove('hidden');
+                resultAdjustmentEl.innerText = adjustmentText;
+                resultAdjustmentEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
+            } else {
+                resultAdjustmentEl.classList.add('hidden');
+            }
+
+            if (finalScore === 1) {
+                resultPanelEl.className = "bg-rose-50/40 rounded-2xl shadow-md border-2 border-rose-300 p-6 transition-all duration-300";
+                scoreCircleEl.className = "w-20 h-20 rounded-2xl bg-rose-600 text-white flex flex-col items-center justify-center shadow-md shrink-0";
+                scoreNumEl.className = "text-3xl font-extrabold text-white";
+                resultTagEl.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-200 text-rose-900";
+                resultTagEl.innerText = "PI-QUAL 1: Inadequado";
+                resultTitleEl.innerText = "Qualidade Diagnóstica Inadequada";
+                resultDescEl.innerText = "O exame não preenche os requisitos técnicos ou apresenta artefatos graves. Recomenda-se investigar a causa e considerar repetir o exame.";
+                resultClinicalTextEl.innerHTML = "<strong>ATENÇÃO:</strong> Exames com PI-QUAL 1 <strong>NÃO</strong> devem receber pontuação PI-RADS v2.1 ou Likert para os achados.";
+            } else if (finalScore === 2) {
+                resultPanelEl.className = "bg-amber-50/40 rounded-2xl shadow-md border-2 border-amber-300 p-6 transition-all duration-300";
+                scoreCircleEl.className = "w-20 h-20 rounded-2xl bg-amber-500 text-white flex flex-col items-center justify-center shadow-md shrink-0";
+                scoreNumEl.className = "text-3xl font-extrabold text-white";
+                resultTagEl.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900";
+                resultTagEl.innerText = "PI-QUAL 2: Aceitável";
+                resultTitleEl.innerText = "Qualidade Diagnóstica Aceitável";
+                resultDescEl.innerText = "A imagem é suficiente para diagnóstico em geral, porém com pequenas limitações. Repetição necessária apenas se persistir dúvida razoável.";
+                resultClinicalTextEl.innerHTML = "Exame suficiente para atribuição do score PI-RADS v2.1 na prática clínica rotineira.";
+            } else {
+                resultPanelEl.className = "bg-emerald-50/40 rounded-2xl shadow-md border-2 border-emerald-300 p-6 transition-all duration-300";
+                scoreCircleEl.className = "w-20 h-20 rounded-2xl bg-emerald-600 text-white flex flex-col items-center justify-center shadow-md shrink-0";
+                scoreNumEl.className = "text-3xl font-extrabold text-white";
+                resultTagEl.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-900";
+                resultTagEl.innerText = "PI-QUAL 3: Ótimo";
+                resultTitleEl.innerText = "Qualidade Diagnóstica Ótima";
+                resultDescEl.innerText = "O exame atende perfeitamente a todos os requisitos e possui nitidez/SNR excelentes para afastar ou confirmar neoplasia.";
+                resultClinicalTextEl.innerHTML = "Excelente qualidade técnica. Essencial para acompanhamento de Vigilância Ativa e reavaliações pós-tratamento.";
+            }
+
+            // --- 6. Generate Clinical Text Report ---
+            const protocolLabel = protocol === 'bpMRI' ? 'Sem Contraste (bpMRI)' : 'Multiparamétrica (mpMRI)';
+            const dceLabelText = protocol === 'bpMRI' ? 'N/A' : (dcePlus ? '+' : '-');
+            const scoreTextLabel = finalScore === 1 ? 'Inadequado' : (finalScore === 2 ? 'Aceitável' : 'Ótimo');
+
+            const reportText = `AVALIAÇÃO DE QUALIDADE TÉCNICA RM DE PRÓSTATA (PI-QUAL v2)
+- Protocolo: ${protocolLabel}
+- Ponderação T2-WI: ${t2Score}/4 ${t2Prereq ? '' : '(Pré-requisito técnico não atingido)'}
+- Ponderação DWI/ADC: ${dwiScore}/4 ${dwiPrereq ? '' : '(Pré-requisito técnico não atingido)'}
+${protocol === 'mpMRI' ? `- Sequência DCE: ${dceLabelText}\n` : ''}- Score Final PI-QUAL v2: ${finalScore} / 3 (${scoreTextLabel})
+- Parecer Técnico: ${resultDescEl.innerText}`;
+
+            document.getElementById('report-textarea').value = reportText;
+        }
+
+        // Copy Report Text Function
+        function copyReportText() {
+            const textarea = document.getElementById('report-textarea');
+            textarea.select();
+            document.execCommand('copy');
+            
+            const btnText = document.getElementById('copy-btn-text');
+            btnText.innerText = "Copiado!";
+            setTimeout(() => {
+                btnText.innerText = "Copiar Laudo";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
