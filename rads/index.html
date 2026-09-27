@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RADS · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, VI-RADS e APENDIC-RADS com cálculo da categoria e conduta.">
+<meta name="description" content="Classificações TI-RADS, VI-RADS, APENDIC-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,7 +122,15 @@ legend{font-weight:700;font-size:18px;margin-bottom:6px;padding:0}
 .lv1{background:#2E7D4F}.lv2{background:#5E9A3A}.lv3{background:#B08A00}.lv4{background:#D2691E}.lv5{background:#B42318}
 .tr .meta{flex:1;min-width:160px}
 .tr .meta b{display:block;font-size:19px}
-@media (max-width:420px){.brand{font-size:38px}.split{grid-template-columns:1fr}nav.tabs button{font-size:13px}}
+@media (max-width:420px){.brand{font-size:38px}.split{grid-template-columns:1fr}nav.tabs button{font-size:12px;letter-spacing:-0.01em}}
+.pq-bar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums}
+.opts .req{background:var(--warn-soft)}
+.opts .req .txt small{color:var(--warn)}
+.opts.off{opacity:.45}
+.adj{display:inline-block;font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:10px;background:var(--warn-soft);color:var(--warn)}
+.adj.up{background:var(--ok-soft);color:var(--ok)}
 .home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
 </style>
 </head>
@@ -217,12 +225,61 @@ legend{font-weight:700;font-size:18px;margin-bottom:6px;padding:0}
   </div>
 </section>
 
+<section id="piqual" class="panel" aria-labelledby="h-piqual">
+  <h2 id="h-piqual">PI-QUAL v2</h2>
+  <p class="lead">Qualidade de imagem da RM de próstata (ESUR/ESUI, 2024), com ou sem contraste. Marque o que estiver presente; se um pré-requisito faltar, a sequência zera.</p>
+  <div class="seg" role="group" aria-label="Protocolo" style="max-width:480px;margin-bottom:12px">
+    <button type="button" id="pqBp" aria-pressed="false">Sem contraste (bpMRI)</button>
+    <button type="button" id="pqMp" aria-pressed="true">Multiparamétrica (mpMRI)</button>
+  </div>
+  <div class="pq-bar">
+    <button type="button" class="btn" id="pqAll">Marcar tudo</button>
+    <button type="button" class="btn ghost" id="pqClear">Limpar</button>
+  </div>
+  <div class="result sticky-res" id="pqOut"></div>
+  <div id="pqForm"></div>
+
+  <h3>Texto para o laudo</h3>
+  <div class="report" id="pqReport"></div>
+  <button type="button" class="btn" id="pqCopy">Copiar texto</button>
+
+  <h3>Como se chega ao escore</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>T2</th><th>Difusão</th><th>Sem contraste</th><th>mpMRI, DCE −</th><th>mpMRI, DCE +</th></tr></thead>
+    <tbody>
+      <tr><td>4</td><td>4</td><td>3</td><td>2 (rebaixa)</td><td>3</td></tr>
+      <tr><td>3 ou 4</td><td>3 ou 4</td><td>2</td><td>2</td><td>2</td></tr>
+      <tr><td>4</td><td>1 ou 2</td><td>1</td><td>1</td><td>2 (eleva)</td></tr>
+      <tr><td>1 ou 2</td><td>4</td><td>1</td><td>1</td><td>2 (eleva)</td></tr>
+      <tr><td>3</td><td>1 ou 2</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td>1 ou 2</td><td>3</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td>1 ou 2</td><td>1 ou 2</td><td>1</td><td>1</td><td>1</td></tr>
+    </tbody></table></div>
+  <p class="hint">DCE “+” exige os pré-requisitos e os dois critérios. Não existe soma total: se T2 ou difusão ≤ 2/4 no exame sem contraste, o escore é 1, mesmo que a outra sequência seja ótima.</p>
+
+  <h3>Parâmetros técnicos (PI-RADS v2.1)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>T2</th><th>Difusão</th><th>DCE</th></tr></thead>
+    <tbody>
+      <tr><td>Planos</td><td>Axial + ao menos um ortogonal (sagital e/ou coronal)</td><td>Iguais ou semelhantes ao T2</td><td>Iguais ou semelhantes ao T2</td></tr>
+      <tr><td>Espessura</td><td>3 mm, sem gap</td><td>≤ 4 mm, sem gap</td><td>3 mm, sem gap</td></tr>
+      <tr><td>FOV</td><td>12–20 cm</td><td>16–22 cm</td><td>12–20 cm</td></tr>
+      <tr><td>Resolução no plano</td><td>≤ 0,7 × ≤ 0,4 mm</td><td>≤ 2,5 mm</td><td>≤ 2 mm</td></tr>
+      <tr><td>Valores b</td><td>–</td><td>Baixo 0 (de preferência 50)–100; intermediário 800–1.000; alto ≥ 1.400 (adquirido ou sintetizado)</td><td>–</td></tr>
+      <tr><td>ADC</td><td>–</td><td>Ajuste monoexponencial com b &lt; 1.000</td><td>–</td></tr>
+      <tr><td>Resolução temporal</td><td>–</td><td>–</td><td>≤ 15 s; observação total &gt; 2 min</td></tr>
+      <tr><td>Gadolínio</td><td>–</td><td>–</td><td>0,1 mmol/kg a 2–3 mL/s</td></tr>
+      <tr><td>Supressão de gordura</td><td>–</td><td>Obrigatória</td><td>Recomendada (ou subtração)</td></tr>
+    </tbody></table></div>
+</section>
+
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
   <p>Baseado em:</p>
   <ul>
     <li>Tessler FN et al. ACR TI-RADS: White Paper. J Am Coll Radiol 2017</li>
     <li>Panebianco V et al. VI-RADS. Eur Urol 2018</li>
+    <li>de Rooij M et al. PI-QUAL version 2. Eur Radiol 2024;34:7068–79</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
   </ul>
 </footer>
@@ -232,6 +289,7 @@ legend{font-weight:700;font-size:18px;margin-bottom:6px;padding:0}
   <button role="tab" data-t="tirads" aria-selected="true">TI-RADS</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
   <button role="tab" data-t="apendic" aria-selected="false">APENDIC-RADS</button>
+  <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
 </div></nav>
 
 <script>
@@ -243,10 +301,11 @@ const num=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFi
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.t));
+  document.title=b.textContent+' · radiorama';
   window.scrollTo({top:0});
-  try{localStorage.setItem('rr-rads-tab',b.dataset.t)}catch(e){}
+  try{localStorage.setItem('rr-rads-tab',b.dataset.t);history.replaceState(null,'','#'+b.dataset.t)}catch(e){}
 }));
-try{const t=localStorage.getItem('rr-rads-tab');if(t){const b=document.querySelector(`nav.tabs button[data-t="${t}"]`);b&&b.click()}}catch(e){}
+try{const h=location.hash.slice(1);const t=document.querySelector(`nav.tabs button[data-t="${h}"]`)?h:localStorage.getItem('rr-rads-tab');if(t){const b=document.querySelector(`nav.tabs button[data-t="${t}"]`);b&&b.click()}}catch(e){}
 
 /* ---------- RADS ---------- */
 function group(name,legend,opts,type='radio'){
@@ -416,6 +475,77 @@ $('apCopy').onclick=async()=>{
   setTimeout(()=>$('apCopy').textContent='Copiar texto',2000);
 };
 apendic();
+
+/* PI-QUAL v2 */
+const PQ={
+ t2:{nome:'T2',req:['Espessura de corte de 3 mm'],crit:[
+   ['T2 axial: SNR adequada','Relação sinal-ruído adequada em todas as partes da imagem'],
+   ['T2 axial: delimitação das estruturas','Cápsula, vesículas seminais, ductos ejaculatórios, feixes neurovasculares e esfíncter uretral externo'],
+   ['T2 axial: sem artefatos significativos','Na região prostática (ex.: movimento, peristalse)'],
+   ['Sagital ou coronal adequado','SNR e resolução adequadas e sem artefatos significativos']]},
+ dwi:{nome:'Difusão',req:['Espessura de corte ≤ 4 mm','Valor b alto ≥ 1.400 s/mm² (adquirido ou calculado)','Mapa ADC com ao menos dois valores b até 1.000 s/mm²'],crit:[
+   ['Contraste e SNR adequados no b alto',''],
+   ['ADC diferencia zona de transição/HPB da zona periférica','Faixa de contraste adequada no mapa ADC'],
+   ['Sem artefatos significativos na região prostática','Distorção por gás retal é grave quando desloca > 5 mm em relação ao T2'],
+   ['Correspondência anatômica do ADC/b alto com o T2 axial','']]},
+ dce:{nome:'DCE',req:['Espessura de corte de 3 mm','Resolução temporal ≤ 15 s','Supressão de gordura (ou subtração/mapas de cor)'],crit:[
+   ['Sem artefatos significativos e realce adequado do bolus','Na região prostática'],
+   ['Identificação de estruturas anatômicas','Ex.: vasos capsulares ou artéria pudenda']]},
+};
+let pqMp=true;
+$('pqForm').innerHTML=Object.entries(PQ).map(([k,q])=>`<fieldset id="pq-${k}"><legend>${q.nome}<span class="sc" id="pq-${k}-sc"></span></legend>
+  <div class="opts" style="margin-bottom:8px">${q.req.map((r,i)=>`<label class="req"><input type="checkbox" class="pq" data-s="${k}" data-r="${i}"><span class="txt">${r}<small>Pré-requisito</small></span></label>`).join('')}</div>
+  <div class="opts" id="pq-${k}-crit">${q.crit.map((c,i)=>`<label><input type="checkbox" class="pq" data-s="${k}" data-c="${i}"><span class="txt">${c[0]}${c[1]?`<small>${c[1]}</small>`:''}</span></label>`).join('')}</div>
+</fieldset>`).join('');
+const pqBox=(k,a,i)=>document.querySelector(`.pq[data-s="${k}"][data-${a}="${i}"]`);
+function pqSeq(k){
+  const q=PQ[k];
+  const reqOk=q.req.every((_,i)=>pqBox(k,'r',i).checked);
+  const met=q.crit.map((_,i)=>pqBox(k,'c',i).checked);
+  return {reqOk,met,score:reqOk?met.filter(Boolean).length:0,missReq:q.req.filter((_,i)=>!pqBox(k,'r',i).checked),missCrit:q.crit.filter((_,i)=>!met[i]).map(c=>c[0])};
+}
+function piqual(){
+  const t2=pqSeq('t2'),dwi=pqSeq('dwi'),dce=pqSeq('dce');
+  const T=t2.score,D=dwi.score,plus=pqMp&&dce.reqOk&&dce.met.every(Boolean);
+  $('pq-dce').style.display=pqMp?'':'none';
+  ['t2','dwi'].forEach(k=>{const s=k==='t2'?t2:dwi;$(`pq-${k}-sc`).textContent=`${s.score}/4`;$(`pq-${k}-crit`).classList.toggle('off',!s.reqOk)});
+  $('pq-dce-sc').textContent=plus?'+':'−';$('pq-dce-crit').classList.toggle('off',!dce.reqOk);
+  const base=(T<=2||D<=2)?1:(T===4&&D===4)?3:2;
+  let fin=base,adj='';
+  if(pqMp){
+    if(!plus&&base===3){fin=2;adj='down'}
+    if(plus&&base===1&&(T===4||D===4)){fin=2;adj='up'}
+  }
+  const NAME=['','Inadequado','Aceitável','Ótimo'];
+  const IMP=['','Exame deve ser repetido. Não atribua PI-RADS ou Likert aos achados (em especial, não classifique como PI-RADS 3). Investigue a causa: paciente (ex.: movimento) ou equipamento.',
+    'Considere repetir o exame apenas se permanecer duvidoso ou insuficiente para o diagnóstico.',
+    'Qualidade diagnóstica ótima: especialmente importante na vigilância ativa e após tratamento.'];
+  const LV=['','lv5','lv3','lv1'];
+  const seqTxt=`T2 ${T}/4 · difusão ${D}/4`+(pqMp?` · DCE ${plus?'+':'−'}`:'');
+  const adjTxt=adj==='down'?'<span class="adj">Rebaixado de 3 para 2: DCE subótimo</span>':adj==='up'?'<span class="adj up">Elevado de 1 para 2: DCE ótimo como rede de segurança</span>':'';
+  $('pqOut').innerHTML=`<div class="tr"><span class="lvl ${LV[fin]}">${fin}</span><div class="meta"><b>PI-QUAL ${fin}: ${NAME[fin].toLowerCase()}</b><span class="unit">${seqTxt}</span></div></div>${adjTxt?'<div>'+adjTxt+'</div>':''}<p style="margin:12px 0 0">${IMP[fin]}</p>`;
+  // laudo
+  const why=(s,nome)=>{if(!s.reqOk)return `${nome}: pré-requisito não atendido (${s.missReq.join('; ').toLowerCase()})`;if(s.missCrit.length)return `${nome}: ${s.missCrit.map(x=>x.toLowerCase()).join('; ')} (não atendido)`;return ''};
+  const lim=[why(t2,'T2'),why(dwi,'Difusão')];
+  if(pqMp&&!plus)lim.push(!dce.reqOk?why(dce,'DCE'):`DCE: ${dce.missCrit.map(x=>x.toLowerCase()).join('; ')} (não atendido)`);
+  let r=`Avaliação da qualidade de imagem (PI-QUAL v2, ${pqMp?'RM multiparamétrica':'RM sem contraste'}): T2 ${T}/4; difusão ${D}/4`;
+  if(pqMp)r+=`; DCE ${plus?'+ (ambos os critérios atendidos)':'−'}`;
+  r+=`. Escore final PI-QUAL ${fin} (${NAME[fin].toLowerCase()})`+(adj==='down'?', rebaixado pelo DCE subótimo':adj==='up'?', elevado pelo DCE ótimo':'')+'.';
+  const l=lim.filter(Boolean);
+  if(l.length)r+=`\nLimitações: ${l.join('. ')}.`;
+  $('pqReport').textContent=r;
+}
+function pqSetMode(mp){pqMp=mp;$('pqMp').setAttribute('aria-pressed',mp);$('pqBp').setAttribute('aria-pressed',!mp);piqual()}
+$('pqMp').onclick=()=>pqSetMode(true);$('pqBp').onclick=()=>pqSetMode(false);
+$('pqAll').onclick=()=>{document.querySelectorAll('.pq').forEach(x=>x.checked=true);piqual()};
+$('pqClear').onclick=()=>{document.querySelectorAll('.pq').forEach(x=>x.checked=false);piqual()};
+$('pqForm').addEventListener('change',piqual);
+$('pqCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('pqReport').textContent);$('pqCopy').textContent='Texto copiado'}
+  catch(e){const g=document.createRange();g.selectNodeContents($('pqReport'));const x=getSelection();x.removeAllRanges();x.addRange(g);$('pqCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('pqCopy').textContent='Copiar texto',2000);
+};
+piqual();
 </script>
 </body>
 </html>
