@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RADS · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, O-RADS RM, VI-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
+<title>Classificações · radiorama</title>
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,6 +134,9 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 .lvb{background:#3B6FB6}
 .path{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:15px}
 .path li{margin:2px 0}
+nav.tabs .in{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+nav.tabs .in::-webkit-scrollbar{display:none}
+nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:nowrap}
 .home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
 </style>
 </head>
@@ -141,7 +144,7 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 <header class="top"><div class="wrap">
   <a class="home" href="/">← todas as ferramentas</a>
   <h1 class="brand">radi<span class="i">o</span>ram<span class="g">a</span></h1>
-  <p class="sub">Classificações RADS: marque os achados e veja a categoria e a conduta.</p>
+  <p class="sub">Classificações e escores: marque os achados e veja a categoria, a conduta e o texto de laudo.</p>
 </div></header>
 
 <main class="wrap">
@@ -313,6 +316,54 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
     </tbody></table></div>
 </section>
 
+<section id="renal" class="panel" aria-labelledby="h-renal">
+  <h2 id="h-renal">Nefrometria R.E.N.A.L.</h2>
+  <p class="lead">Complexidade anatômica de massa renal sólida na TC ou RM com contraste, para planejamento cirúrgico (Kutikov e Uzzo, 2009).</p>
+  <div class="result sticky-res" id="rnOut"></div>
+
+  <fieldset><legend>R: raio (maior diâmetro)<span class="sc" id="rn-R"></span></legend>
+    <label class="f" style="max-width:240px">Maior diâmetro (cm)<input id="rnDiam" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 3,5"></label>
+    <p class="hint" style="margin-top:6px">≤ 4 cm: 1 ponto · &gt; 4 e &lt; 7 cm: 2 · ≥ 7 cm: 3</p>
+  </fieldset>
+
+  <fieldset><legend>E: exofítico ou endofítico<span class="sc" id="rn-E"></span></legend><div class="opts">
+    <label><input type="radio" name="rn-e" value="1"><span class="txt">≥ 50% exofítico</span><span class="pts">1</span></label>
+    <label><input type="radio" name="rn-e" value="2"><span class="txt">&lt; 50% exofítico</span><span class="pts">2</span></label>
+    <label><input type="radio" name="rn-e" value="3"><span class="txt">Completamente endofítico</span><span class="pts">3</span></label>
+  </div><p class="hint" style="margin-top:6px">Compare com o contorno renal esperado.</p></fieldset>
+
+  <fieldset><legend>N: proximidade do sistema coletor ou seio renal<span class="sc" id="rn-N"></span></legend>
+    <label class="f" style="max-width:280px">Distância da porção mais profunda (mm)<input id="rnDist" type="number" inputmode="decimal" step="0.5" min="0" placeholder="ex.: 5"></label>
+    <p class="hint" style="margin-top:6px">≥ 7 mm: 1 ponto · &gt; 4 e &lt; 7 mm: 2 · ≤ 4 mm: 3. Melhor medida na fase excretora.</p>
+  </fieldset>
+
+  <fieldset><legend>A: anterior ou posterior<span class="sc">sem pontos</span></legend><div class="opts">
+    <label><input type="radio" name="rn-a" value="a"><span class="txt">Anterior (a)<small>Predomina na face ventral do rim</small></span></label>
+    <label><input type="radio" name="rn-a" value="p"><span class="txt">Posterior (p)<small>Predomina na face dorsal</small></span></label>
+    <label><input type="radio" name="rn-a" value="x"><span class="txt">Indeterminado (x)<small>Ex.: puramente lateral ou central apical</small></span></label>
+  </div></fieldset>
+
+  <fieldset><legend>L: localização em relação às linhas polares<span class="sc" id="rn-L"></span></legend><div class="opts">
+    <label><input type="radio" name="rn-l" value="1"><span class="txt">Inteiramente acima da linha polar superior ou abaixo da inferior</span><span class="pts">1</span></label>
+    <label><input type="radio" name="rn-l" value="2"><span class="txt">Cruza uma linha polar</span><span class="pts">2</span></label>
+    <label><input type="radio" name="rn-l" value="3"><span class="txt">&gt; 50% além da linha polar, inteiramente entre as linhas polares ou cruza a linha média axial</span><span class="pts">3</span></label>
+  </div><p class="hint" style="margin-top:6px">As linhas polares passam pelos limites superior e inferior do pedículo vascular renal, no axial ou no coronal.</p></fieldset>
+
+  <fieldset><legend>Sufixo hilar</legend><div class="opts">
+    <label><input type="checkbox" id="rnH"><span class="txt">Toca a artéria ou a veia renal principal (h)<small>Não soma pontos</small></span></label>
+  </div></fieldset>
+
+  <h3>Texto para o laudo</h3>
+  <div class="report" id="rnReport"></div>
+  <button type="button" class="btn" id="rnCopy">Copiar texto</button>
+
+  <h3>Complexidade</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Soma</th><th>Complexidade</th></tr></thead>
+    <tbody><tr><td>4–6</td><td>Baixa</td></tr><tr><td>7–9</td><td>Moderada</td></tr><tr><td>10–12</td><td>Alta</td></tr></tbody></table></div>
+  <p class="hint">Formato: soma + sufixos. Ex.: 1 + 2 + 3 + a + 2, com hilo = 8ah. Escores mais altos se associam a mais complicações, maior tempo de isquemia e maior chance de fístula urinária após nefrectomia parcial.</p>
+</section>
+
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
   <p>Baseado em:</p>
@@ -321,6 +372,7 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
     <li>Panebianco V et al. VI-RADS. Eur Urol 2018</li>
     <li>de Rooij M et al. PI-QUAL version 2. Eur Radiol 2024;34:7068–79</li>
     <li>ACR O-RADS MRI Risk Stratification and Management System (2024); Sadowski EA et al. Radiology 2022;303:35–47</li>
+    <li>Kutikov A, Uzzo RG. J Urol 2009;182:844–53; Parsons RB et al. AJR 2012;199:W355–9</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
   </ul>
 </footer>
@@ -329,6 +381,7 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 <nav class="tabs" aria-label="Classificações"><div class="in" role="tablist">
   <button role="tab" data-t="tirads" aria-selected="true">TI-RADS</button>
   <button role="tab" data-t="apendic" aria-selected="false" aria-label="APENDIC-RADS">APENDIC</button>
+  <button role="tab" data-t="renal" aria-selected="false" aria-label="Nefrometria R.E.N.A.L.">RENAL</button>
   <button role="tab" data-t="orads" aria-selected="false" aria-label="O-RADS RM">O-RADS</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
   <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
@@ -343,6 +396,7 @@ const num=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFi
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.t));
+  b.scrollIntoView({inline:'center',block:'nearest'});
   document.title=(b.getAttribute('aria-label')||b.textContent)+' · radiorama';
   window.scrollTo({top:0});
   try{localStorage.setItem('rr-rads-tab',b.dataset.t);history.replaceState(null,'','#'+b.dataset.t)}catch(e){}
@@ -667,6 +721,37 @@ $('orCopy').onclick=async()=>{
   setTimeout(()=>$('orCopy').textContent='Copiar texto',2000);
 };
 orads();
+
+/* Nefrometria R.E.N.A.L. */
+function renal(){
+  const d=num($('rnDiam')),n=num($('rnDist'));
+  const R=d>0?(d<=4?1:d<7?2:3):null;
+  const N=n>=0&&$('rnDist').value!==''?(n>=7?1:n>4?2:3):null;
+  const g=nm=>{const e=document.querySelector(`input[name="${nm}"]:checked`);return e?e.value:null};
+  const E=g('rn-e')?+g('rn-e'):null,L=g('rn-l')?+g('rn-l'):null,A=g('rn-a'),H=$('rnH').checked;
+  $('rn-R').textContent=R?R+' pt':'';$('rn-N').textContent=N?N+' pt':'';$('rn-E').textContent=E?E+' pt':'';$('rn-L').textContent=L?L+' pt':'';
+  const miss=[R===null&&'R',E===null&&'E',N===null&&'N',!A&&'A',L===null&&'L'].filter(Boolean);
+  const out=$('rnOut'),rep=$('rnReport');
+  if(miss.length){
+    const part=[R,E,N,L].filter(x=>x!==null).reduce((a,b)=>a+b,0);
+    out.innerHTML=`<p class="hint" style="margin:0">Falta preencher: ${miss.join(', ')}${part?` · parcial ${part} pontos`:''}.</p>`;
+    rep.textContent='Preencha os cinco componentes para gerar o texto.';return}
+  const sum=R+E+N+L,code=`${sum}${A}${H?'h':''}`;
+  const cx=sum<=6?['Baixa','lv1']:sum<=9?['Moderada','lv3']:['Alta','lv5'];
+  out.innerHTML=`<div class="tr"><span class="lvl ${cx[1]}">${code}</span><div class="meta"><b>Complexidade ${cx[0].toLowerCase()}</b><span class="unit">${R} + ${E} + ${N} + ${A} + ${L}${H?' + h':''} = ${code}</span></div></div>`;
+  const Et={1:'≥ 50% exofítica',2:'< 50% exofítica',3:'completamente endofítica'}[E];
+  const At={a:'anterior',p:'posterior',x:'sem predomínio anterior ou posterior'}[A];
+  const Lt={1:'inteiramente acima ou abaixo das linhas polares',2:'cruzando uma linha polar',3:'predominantemente entre as linhas polares ou cruzando a linha média axial'}[L];
+  rep.textContent=`Escore de nefrometria R.E.N.A.L.: ${R} + ${E} + ${N} + ${A} + ${L}${H?' + h':''} = ${code} (complexidade ${cx[0].toLowerCase()}). Lesão com ${fmt(d,1)} cm, ${Et}, distando ${fmt(n,1)} mm do sistema coletor/seio renal, ${At}, ${Lt}${H?', em contato com o pedículo vascular renal principal':''}.`;
+}
+['rnDiam','rnDist'].forEach(id=>$(id).addEventListener('input',renal));
+document.querySelectorAll('#renal input[type=radio],#rnH').forEach(el=>el.addEventListener('change',renal));
+$('rnCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('rnReport').textContent);$('rnCopy').textContent='Texto copiado'}
+  catch(e){const g=document.createRange();g.selectNodeContents($('rnReport'));const x=getSelection();x.removeAllRanges();x.addRange(g);$('rnCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('rnCopy').textContent='Copiar texto',2000);
+};
+renal();
 </script>
 </body>
 </html>
