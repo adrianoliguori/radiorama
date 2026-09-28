@@ -322,9 +322,11 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <div class="result sticky-res" id="rnOut"></div>
 
   <fieldset><legend>R: raio (maior diâmetro)<span class="sc" id="rn-R"></span></legend>
-    <label class="f" style="max-width:240px">Maior diâmetro (cm)<input id="rnDiam" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 3,5"></label>
-    <p class="hint" style="margin-top:6px">≤ 4 cm: 1 ponto · &gt; 4 e &lt; 7 cm: 2 · ≥ 7 cm: 3</p>
-  </fieldset>
+<div class="opts">
+    <label><input type="radio" name="rn-r" value="1"><span class="txt">≤ 4 cm</span><span class="pts">1</span></label>
+    <label><input type="radio" name="rn-r" value="2"><span class="txt">&gt; 4 e &lt; 7 cm</span><span class="pts">2</span></label>
+    <label><input type="radio" name="rn-r" value="3"><span class="txt">≥ 7 cm</span><span class="pts">3</span></label>
+  </div></fieldset>
 
   <fieldset><legend>E: exofítico ou endofítico<span class="sc" id="rn-E"></span></legend><div class="opts">
     <label><input type="radio" name="rn-e" value="1"><span class="txt">≥ 50% exofítico</span><span class="pts">1</span></label>
@@ -333,9 +335,11 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   </div><p class="hint" style="margin-top:6px">Compare com o contorno renal esperado.</p></fieldset>
 
   <fieldset><legend>N: proximidade do sistema coletor ou seio renal<span class="sc" id="rn-N"></span></legend>
-    <label class="f" style="max-width:280px">Distância da porção mais profunda (mm)<input id="rnDist" type="number" inputmode="decimal" step="0.5" min="0" placeholder="ex.: 5"></label>
-    <p class="hint" style="margin-top:6px">≥ 7 mm: 1 ponto · &gt; 4 e &lt; 7 mm: 2 · ≤ 4 mm: 3. Melhor medida na fase excretora.</p>
-  </fieldset>
+<div class="opts">
+    <label><input type="radio" name="rn-n" value="1"><span class="txt">≥ 7 mm</span><span class="pts">1</span></label>
+    <label><input type="radio" name="rn-n" value="2"><span class="txt">&gt; 4 e &lt; 7 mm</span><span class="pts">2</span></label>
+    <label><input type="radio" name="rn-n" value="3"><span class="txt">≤ 4 mm</span><span class="pts">3</span></label>
+  </div><p class="hint" style="margin-top:6px">Distância da porção mais profunda do tumor; melhor avaliada na fase excretora.</p></fieldset>
 
   <fieldset><legend>A: anterior ou posterior<span class="sc">sem pontos</span></legend><div class="opts">
     <label><input type="radio" name="rn-a" value="a"><span class="txt">Anterior (a)<small>Predomina na face ventral do rim</small></span></label>
@@ -352,10 +356,6 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <fieldset><legend>Sufixo hilar</legend><div class="opts">
     <label><input type="checkbox" id="rnH"><span class="txt">Toca a artéria ou a veia renal principal (h)<small>Não soma pontos</small></span></label>
   </div></fieldset>
-
-  <h3>Texto para o laudo</h3>
-  <div class="report" id="rnReport"></div>
-  <button type="button" class="btn" id="rnCopy">Copiar texto</button>
 
   <h3>Complexidade</h3>
   <div class="tablewrap"><table>
@@ -724,33 +724,19 @@ orads();
 
 /* Nefrometria R.E.N.A.L. */
 function renal(){
-  const d=num($('rnDiam')),n=num($('rnDist'));
-  const R=d>0?(d<=4?1:d<7?2:3):null;
-  const N=n>=0&&$('rnDist').value!==''?(n>=7?1:n>4?2:3):null;
   const g=nm=>{const e=document.querySelector(`input[name="${nm}"]:checked`);return e?e.value:null};
-  const E=g('rn-e')?+g('rn-e'):null,L=g('rn-l')?+g('rn-l'):null,A=g('rn-a'),H=$('rnH').checked;
+  const R=g('rn-r')?+g('rn-r'):null,E=g('rn-e')?+g('rn-e'):null,N=g('rn-n')?+g('rn-n'):null,L=g('rn-l')?+g('rn-l'):null,A=g('rn-a'),H=$('rnH').checked;
   $('rn-R').textContent=R?R+' pt':'';$('rn-N').textContent=N?N+' pt':'';$('rn-E').textContent=E?E+' pt':'';$('rn-L').textContent=L?L+' pt':'';
   const miss=[R===null&&'R',E===null&&'E',N===null&&'N',!A&&'A',L===null&&'L'].filter(Boolean);
-  const out=$('rnOut'),rep=$('rnReport');
+  const out=$('rnOut');
   if(miss.length){
     const part=[R,E,N,L].filter(x=>x!==null).reduce((a,b)=>a+b,0);
-    out.innerHTML=`<p class="hint" style="margin:0">Falta preencher: ${miss.join(', ')}${part?` · parcial ${part} pontos`:''}.</p>`;
-    rep.textContent='Preencha os cinco componentes para gerar o texto.';return}
+    out.innerHTML=`<p class="hint" style="margin:0">Falta marcar: ${miss.join(', ')}${part?` · parcial ${part} pontos`:''}.</p>`;return}
   const sum=R+E+N+L,code=`${sum}${A}${H?'h':''}`;
   const cx=sum<=6?['Baixa','lv1']:sum<=9?['Moderada','lv3']:['Alta','lv5'];
   out.innerHTML=`<div class="tr"><span class="lvl ${cx[1]}">${code}</span><div class="meta"><b>Complexidade ${cx[0].toLowerCase()}</b><span class="unit">${R} + ${E} + ${N} + ${A} + ${L}${H?' + h':''} = ${code}</span></div></div>`;
-  const Et={1:'≥ 50% exofítica',2:'< 50% exofítica',3:'completamente endofítica'}[E];
-  const At={a:'anterior',p:'posterior',x:'sem predomínio anterior ou posterior'}[A];
-  const Lt={1:'inteiramente acima ou abaixo das linhas polares',2:'cruzando uma linha polar',3:'predominantemente entre as linhas polares ou cruzando a linha média axial'}[L];
-  rep.textContent=`Escore de nefrometria R.E.N.A.L.: ${R} + ${E} + ${N} + ${A} + ${L}${H?' + h':''} = ${code} (complexidade ${cx[0].toLowerCase()}). Lesão com ${fmt(d,1)} cm, ${Et}, distando ${fmt(n,1)} mm do sistema coletor/seio renal, ${At}, ${Lt}${H?', em contato com o pedículo vascular renal principal':''}.`;
 }
-['rnDiam','rnDist'].forEach(id=>$(id).addEventListener('input',renal));
-document.querySelectorAll('#renal input[type=radio],#rnH').forEach(el=>el.addEventListener('change',renal));
-$('rnCopy').onclick=async()=>{
-  try{await navigator.clipboard.writeText($('rnReport').textContent);$('rnCopy').textContent='Texto copiado'}
-  catch(e){const g=document.createRange();g.selectNodeContents($('rnReport'));const x=getSelection();x.removeAllRanges();x.addRange(g);$('rnCopy').textContent='Texto selecionado: copie manualmente'}
-  setTimeout(()=>$('rnCopy').textContent='Copiar texto',2000);
-};
+document.querySelectorAll('#renal input').forEach(el=>el.addEventListener('change',renal));
 renal();
 </script>
 </body>
