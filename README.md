@@ -7,7 +7,7 @@ Portal de ferramentas de radiologia, publicado em https://radiorama.netlify.app.
 | `/` | Página inicial: escolha da ferramenta |
 | `/contraste/` | Contraste iodado e gadolínio: função renal, doses, reações e preparo |
 | `/pedir-exames/` | Pedir Radiologia: montar requisição, qual exame pedir, segurança, treino |
-| `/rads/` | Classificações: TI-RADS, VI-RADS, APENDIC-RADS e PI-QUAL v2 (`/pi-qual/` redireciona para `/rads/#piqual`) |
+| `/rads/` | Classificações: TI-RADS, APENDIC-RADS, O-RADS RM, VI-RADS e PI-QUAL v2 (`/pi-qual/` redireciona para `/rads/#piqual`) |
 
 Sites estáticos, sem build. Para adicionar uma ferramenta, crie uma pasta com `index.html` e um cartão na página inicial.
 

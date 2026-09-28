@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RADS · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, VI-RADS, APENDIC-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, O-RADS RM, VI-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,6 +131,9 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 .opts.off{opacity:.45}
 .adj{display:inline-block;font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:10px;background:var(--warn-soft);color:var(--warn)}
 .adj.up{background:var(--ok-soft);color:var(--ok)}
+.lvb{background:#3B6FB6}
+.path{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:15px}
+.path li{margin:2px 0}
 .home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
 </style>
 </head>
@@ -273,6 +276,43 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
     </tbody></table></div>
 </section>
 
+<section id="orads" class="panel" aria-labelledby="h-orads">
+  <h2 id="h-orads">O-RADS RM</h2>
+  <p class="lead">Estratificação de risco de lesões anexiais na RM (ACR). Responda as perguntas em ordem; as próximas aparecem conforme as respostas.</p>
+  <div class="result sticky-res" id="orOut"></div>
+  <div id="orForm"></div>
+  <button type="button" class="btn ghost" id="orReset" style="margin-bottom:8px">Recomeçar</button>
+
+  <h3>Texto para o laudo</h3>
+  <div class="report" id="orReport"></div>
+  <button type="button" class="btn" id="orCopy">Copiar texto</button>
+
+  <h3>Categorias</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Escore</th><th>Risco</th><th>VPP</th><th>Achados</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>Avaliação incompleta</td><td>–</td><td>Lesão incompletamente avaliada, sequências faltando ou artefato importante</td></tr>
+      <tr><td>1</td><td>Ovários normais</td><td>–</td><td>Sem lesão; na pré-menopausa, folículo, cisto hemorrágico ou corpo lúteo ≤ 3 cm</td></tr>
+      <tr><td>2</td><td>Quase certamente benigno</td><td>&lt; 0,5%</td><td>Cisto unilocular sem realce parietal (qualquer líquido); unilocular simples ou endometriótico com parede lisa realçante; lesão com gordura sem tecido sólido realçante; tecido sólido T2 escuro/DWI escuro homogêneo; tuba dilatada com líquido simples e parede fina; cisto paraovariano</td></tr>
+      <tr><td>3</td><td>Baixo risco</td><td>~5%</td><td>Unilocular proteináceo, hemorrágico ou mucinoso com parede lisa realçante; multilocular com septos lisos, sem gordura; tecido sólido com curva de baixo risco; tuba com líquido não simples e parede fina, ou líquido simples e parede espessa lisa</td></tr>
+      <tr><td>4</td><td>Risco intermediário</td><td>~50%</td><td>Tecido sólido com curva de risco intermediário, ou realce ≤ miométrio em 30–40 s sem DCE; lesão com gordura e grande volume de tecido sólido realçante</td></tr>
+      <tr><td>5</td><td>Alto risco</td><td>~90%</td><td>Tecido sólido com curva de alto risco, ou realce &gt; miométrio em 30–40 s sem DCE; nodularidade ou espessamento irregular peritoneal, mesentérico ou omental</td></tr>
+    </tbody></table></div>
+  <p class="hint">Tecido sólido é o componente que realça e tem morfologia de projeção papilar, nódulo mural, septo ou parede irregular, ou porção sólida maior. Septo liso, coágulo, debris, fibrina e gordura não contam. Aplique só em paciente de risco habitual sem sintomas agudos. O escore não se aplica a lesões não anexiais. Um diagnóstico específico (ex.: endometrioma, dermoide, fibroma) pode ser citado junto com o escore.</p>
+
+  <h3>Protocolo (1,5 ou 3 T)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Sequência</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td>T2 sagital sem saturação</td><td>Espessura ≤ 4 mm</td></tr>
+      <tr><td>T2 axial sem saturação</td><td>Espessura ≤ 3 mm</td></tr>
+      <tr><td>T1 axial em fase e fora de fase</td><td>Espessura ≤ 4 mm</td></tr>
+      <tr><td>DWI axial</td><td>Mesma localização do T2; ≤ 4 mm; b 0–50 e ≥ 1.000 s/mm²</td></tr>
+      <tr><td>DCE: T1 3D com saturação</td><td>Iniciar 30 s antes da injeção; duração total 4 min; ≤ 3 mm; resolução temporal ≤ 15 s</td></tr>
+      <tr><td>T1 3D sem DCE (alternativa)</td><td>Pré-contraste e fase única 30–40 s após o fim da injeção; ≤ 3 mm</td></tr>
+    </tbody></table></div>
+</section>
+
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
   <p>Baseado em:</p>
@@ -280,6 +320,7 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
     <li>Tessler FN et al. ACR TI-RADS: White Paper. J Am Coll Radiol 2017</li>
     <li>Panebianco V et al. VI-RADS. Eur Urol 2018</li>
     <li>de Rooij M et al. PI-QUAL version 2. Eur Radiol 2024;34:7068–79</li>
+    <li>ACR O-RADS MRI Risk Stratification and Management System (2024); Sadowski EA et al. Radiology 2022;303:35–47</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
   </ul>
 </footer>
@@ -287,8 +328,9 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 
 <nav class="tabs" aria-label="Classificações"><div class="in" role="tablist">
   <button role="tab" data-t="tirads" aria-selected="true">TI-RADS</button>
+  <button role="tab" data-t="apendic" aria-selected="false" aria-label="APENDIC-RADS">APENDIC</button>
+  <button role="tab" data-t="orads" aria-selected="false" aria-label="O-RADS RM">O-RADS</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
-  <button role="tab" data-t="apendic" aria-selected="false">APENDIC-RADS</button>
   <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
 </div></nav>
 
@@ -301,7 +343,7 @@ const num=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFi
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.t));
-  document.title=b.textContent+' · radiorama';
+  document.title=(b.getAttribute('aria-label')||b.textContent)+' · radiorama';
   window.scrollTo({top:0});
   try{localStorage.setItem('rr-rads-tab',b.dataset.t);history.replaceState(null,'','#'+b.dataset.t)}catch(e){}
 }));
@@ -546,6 +588,85 @@ $('pqCopy').onclick=async()=>{
   setTimeout(()=>$('pqCopy').textContent='Copiar texto',2000);
 };
 piqual();
+
+/* O-RADS RM */
+const OR_Q={
+ tech:{l:'O exame está completo e tecnicamente adequado?',o:[['ok','Sim'],['inc','Não','Lesão incompletamente avaliada, sequências faltando ou artefato importante']]},
+ perit:{l:'Nodularidade ou espessamento irregular peritoneal, mesentérico ou omental?',o:[['no','Não'],['yes','Sim','Com ou sem ascite']]},
+ find:{l:'O que há no anexo?',o:[['normal','Ovários normais, sem lesão'],['phys','Achado fisiológico ≤ 3 cm na pré-menopausa','Folículo (cisto simples), cisto hemorrágico ou corpo lúteo'],['lesion','Lesão anexial']]},
+ lipid:{l:'A lesão tem conteúdo lipídico?',o:[['no','Não'],['yes','Sim','Gordura macroscópica: hipersinal em T1 e T2 com queda na saturação de gordura']]},
+ lipidSolid:{l:'Há grande volume de tecido sólido realçante?',o:[['no','Não','Sem tecido sólido, ou só nódulo de Rokitansky com realce mínimo'],['yes','Sim','Especialmente com margens irregulares']]},
+ solid:{l:'Há tecido sólido realçante?',o:[['no','Não','Só líquido, septos ou paredes lisos, coágulo, debris ou fibrina'],['yes','Sim','Projeção papilar, nódulo mural, septo ou parede irregular, ou porção sólida maior']]},
+ dark:{l:'O tecido sólido é homogeneamente hipointenso em T2 e na DWI de b alto?',o:[['yes','Sim (T2 escuro/DWI escuro)','Sugere lesão fibrosa: fibroma ou fibrotecoma'],['no','Não']]},
+ dce:{l:'Como foi avaliado o realce?',o:[['dce','DCE com curva tempo-intensidade','Preferível'],['nondce','Sem DCE: fase única 30–40 s']]},
+ tic:{l:'Curva tempo-intensidade do tecido sólido (comparada ao miométrio externo)',o:[['low','Baixo risco','Subida mais lenta que o miométrio, sem ombro nem platô'],['int','Risco intermediário','Subida moderada, inclinação ≤ miométrio, com ombro e platô'],['high','Alto risco','Subida rápida, inclinação > miométrio, com ombro e platô']]},
+ nondce:{l:'Realce do tecido sólido em 30–40 s, comparado ao miométrio',o:[['le','Menor ou igual ao miométrio'],['gt','Maior que o miométrio']]},
+ type:{l:'Tipo de lesão (sem tecido sólido realçante)',o:[['uni','Cisto ovariano unilocular'],['multi','Cisto ovariano multilocular'],['tube','Tuba uterina dilatada'],['para','Cisto paraovariano']]},
+ wall:{l:'Parede do cisto',o:[['none','Sem realce parietal','Qualquer tipo de líquido'],['smooth','Parede lisa com realce']]},
+ fluid:{l:'Conteúdo do cisto',o:[['simple','Líquido simples'],['endo','Conteúdo endometriótico','Hipersinal em T1, hipossinal ou sinal intermediário em T2 (shading)'],['other','Conteúdo proteináceo, hemorrágico ou mucinoso','Cisto hemorrágico ≤ 3 cm na pré-menopausa é O-RADS 1']]},
+ multi:{l:'Aspecto do cisto multilocular',o:[['smooth','Septos e parede lisos com realce, sem gordura','Qualquer tipo de líquido'],['endo','Endometrioma com aspecto multilocular','Parênquima ovariano entre endometriomas simulando septos']]},
+ tube:{l:'Tuba dilatada: conteúdo e parede',o:[['simpleThin','Líquido simples, parede e pregas finas e lisas'],['nonsimpleThin','Líquido não simples, parede e pregas finas'],['simpleThick','Líquido simples, parede e pregas espessas e lisas']]},
+};
+const OR_R={
+ 0:['Avaliação incompleta','–','lv0'],1:['Ovários normais','–','lvb'],2:['Quase certamente benigno','< 0,5%','lv1'],
+ 3:['Baixo risco','~5%','lv3'],4:['Risco intermediário','~50%','lv4'],5:['Alto risco','~90%','lv5']};
+let orA={};
+function orResolve(a){
+  const path=[];const q=(k)=>({ask:k,path});
+  const add=(k)=>{const o=OR_Q[k].o.find(x=>x[0]===a[k]);path.push(o[1]);};
+  const end=(sc,dx)=>({score:sc,dx,path});
+  if(!a.tech)return q('tech'); if(a.tech==='inc'){path.push('Exame incompleto ou tecnicamente inadequado');return end(0)}
+  if(!a.perit)return q('perit'); if(a.perit==='yes'){path.push('Nodularidade ou espessamento irregular peritoneal, mesentérico ou omental');return end(5)}
+  if(!a.find)return q('find'); if(a.find!=='lesion'){add('find');return end(1)}
+  if(!a.lipid)return q('lipid');
+  if(a.lipid==='yes'){path.push('Lesão com conteúdo lipídico');
+    if(!a.lipidSolid)return q('lipidSolid'); path.push(a.lipidSolid==='yes'?'Grande volume de tecido sólido realçante':'Sem grande volume de tecido sólido realçante');
+    return a.lipidSolid==='yes'?end(4):end(2,'teratoma maduro (dermoide)')}
+  if(!a.solid)return q('solid');
+  if(a.solid==='yes'){path.push('Tecido sólido realçante');
+    if(!a.dark)return q('dark');
+    if(a.dark==='yes'){path.push('T2 escuro/DWI escuro homogêneo');return end(2,'lesão fibrosa (fibroma/fibrotecoma)')}
+    if(!a.dce)return q('dce');
+    if(a.dce==='dce'){if(!a.tic)return q('tic');path.push('Curva de '+OR_Q.tic.o.find(x=>x[0]===a.tic)[1].toLowerCase());return end({low:3,int:4,high:5}[a.tic])}
+    if(!a.nondce)return q('nondce');path.push('Sem DCE: realce '+(a.nondce==='le'?'≤':'>')+' miométrio em 30–40 s');return end(a.nondce==='le'?4:5)}
+  path.push('Sem tecido sólido realçante');
+  if(!a.type)return q('type'); add('type');
+  if(a.type==='para')return end(2,'cisto paraovariano');
+  if(a.type==='tube'){if(!a.tube)return q('tube');add('tube');return end(a.tube==='simpleThin'?2:3,a.tube==='simpleThin'?'hidrossalpinge':null)}
+  if(a.type==='multi'){if(!a.multi)return q('multi');add('multi');return a.multi==='endo'?end(2,'endometriomas'):end(3)}
+  if(!a.wall)return q('wall'); add('wall');
+  if(a.wall==='none')return end(2);
+  if(!a.fluid)return q('fluid'); add('fluid');
+  return a.fluid==='other'?end(3):end(2,a.fluid==='endo'?'endometrioma':null);
+}
+function orasked(a){ // perguntas já respondidas no caminho atual + a próxima
+  const shown=[];const b={};
+  for(;;){const r=orResolve(b);if(r.ask){shown.push(r.ask);if(a[r.ask]===undefined)break;b[r.ask]=a[r.ask]}else break}
+  return {shown,clean:b};
+}
+function orads(){
+  const {shown,clean}=orasked(orA);orA=clean;
+  $('orForm').innerHTML=shown.map(k=>{const Q=OR_Q[k];return `<fieldset><legend>${Q.l}</legend><div class="opts">${Q.o.map(o=>
+    `<label><input type="radio" name="or-${k}" value="${o[0]}"${orA[k]===o[0]?' checked':''}><span class="txt">${o[1]}${o[2]?`<small>${o[2]}</small>`:''}</span></label>`).join('')}</div></fieldset>`}).join('');
+  const r=orResolve(orA),out=$('orOut'),rep=$('orReport');
+  if(r.ask){out.innerHTML=`<p class="hint" style="margin:0">${Object.keys(orA).length?'Continue respondendo abaixo.':'Comece pela primeira pergunta.'}</p>`;rep.textContent='Responda as perguntas para gerar o texto.';return}
+  const [nm,ppv,lv]=OR_R[r.score];
+  out.innerHTML=`<div class="tr"><span class="lvl ${lv}">${r.score}</span><div class="meta"><b>O-RADS RM ${r.score}: ${nm.toLowerCase()}</b><span class="unit">VPP para malignidade ${ppv}${r.dx?' · sugere '+r.dx:''}</span></div></div><ul class="path">${r.path.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  let t=`Conclusão: O-RADS RM ${r.score} (${nm.toLowerCase()}`+(ppv!=='–'?`; VPP para malignidade ${ppv}`:'')+').';
+  if(r.dx)t+=` Aspecto sugestivo de ${r.dx}.`;
+  t+=`\nAchados que definem o escore: ${r.path.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join('; ')}.`;
+  rep.textContent=t;
+}
+$('orForm').addEventListener('change',e=>{const k=e.target.name.slice(3);orA[k]=e.target.value;
+  // apaga respostas posteriores que não se aplicam mais
+  const {shown}=orasked(orA);Object.keys(orA).forEach(x=>{if(!shown.includes(x))delete orA[x]});orads();});
+$('orReset').onclick=()=>{orA={};orads()};
+$('orCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('orReport').textContent);$('orCopy').textContent='Texto copiado'}
+  catch(e){const g=document.createRange();g.selectNodeContents($('orReport'));const x=getSelection();x.removeAllRanges();x.addRange(g);$('orCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('orCopy').textContent='Copiar texto',2000);
+};
+orads();
 </script>
 </body>
 </html>
