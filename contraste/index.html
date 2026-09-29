@@ -141,7 +141,8 @@ nav.tabs button[aria-selected=true]{color:var(--ink);font-weight:700;border-top-
   <div class="sec-iodo">
     <h3>Iodado (TC)</h3>
     <div class="grid">
-      <label class="f">Concentração (mgI/mL)<select id="conc"><option>270</option><option selected>300</option><option>320</option><option>350</option><option>370</option><option>400</option></select></label>
+      <label class="f">Produto<select id="iAgent"></select></label>
+      <label class="f">Concentração (mgI/mL)<select id="conc"><option>240</option><option>270</option><option selected>300</option><option>320</option><option>350</option><option>370</option><option>400</option></select></label>
       <label class="f">Carga de iodo (gI/kg)<select id="gik"><option value="0.35">0,35</option><option value="0.4">0,40</option><option value="0.5" selected>0,50</option><option value="0.6">0,60</option></select></label>
       <label class="f">Tempo de injeção (s)<input id="tinj" type="number" inputmode="numeric" min="5" max="120" value="30"></label>
     </div>
@@ -338,15 +339,9 @@ nav.tabs button[aria-selected=true]{color:var(--ink);font-weight:700;border-top-
   <p class="lead">Nomes comerciais variam; disponibilidade no Brasil depende do fornecedor.</p>
   <div class="sec-iodo"><h3>Iodados</h3></div>
   <div class="tablewrap"><table>
-    <thead><tr><th>Substância</th><th>Exemplo</th><th>Tipo</th><th>mgI/mL</th></tr></thead>
-    <tbody>
-      <tr><td>Ioexol</td><td>Omnipaque</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 350</td></tr>
-      <tr><td>Iopamidol</td><td>Iopamiron</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 370</td></tr>
-      <tr><td>Ioversol</td><td>Optiray</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 320, 350</td></tr>
-      <tr><td>Iopromida</td><td>Ultravist</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 370</td></tr>
-      <tr><td>Iobitridol</td><td>Henetix</td><td>Monômero não iônico, baixa osmolaridade</td><td>300, 350</td></tr>
-      <tr><td>Iodixanol</td><td>Visipaque</td><td>Dímero não iônico, iso-osmolar</td><td>270, 320</td></tr>
-    </tbody></table></div>
+    <thead><tr><th>Substância</th><th>Nome comercial</th><th>Tipo</th><th>mgI/mL</th></tr></thead>
+    <tbody id="iTable">
+      </tbody></table></div>
   <div class="sec-gado"><h3>Gadolínio</h3></div>
   <div class="tablewrap"><table>
     <thead><tr><th>Substância</th><th>Exemplo</th><th>Estrutura</th><th>Conc.</th><th>Dose usual</th></tr></thead>
@@ -442,6 +437,23 @@ function renal(){
 }
 
 /* ---------- DOSE ---------- */
+const IOD=[
+ {n:'Iopromida',b:'Ultravist',f:'Bayer',t:'Monômero não iônico, baixa osmolaridade',c:[300,370]},
+ {n:'Ioexol',b:'Omnipaque',f:'GE HealthCare',t:'Monômero não iônico, baixa osmolaridade',c:[300,350]},
+ {n:'Iopamidol',b:'Iopamiron',f:'Bracco',t:'Monômero não iônico, baixa osmolaridade',c:[300,370]},
+ {n:'Ioversol',b:'Optiray',f:'Guerbet',t:'Monômero não iônico, baixa osmolaridade',c:[300,320,350]},
+ {n:'Iobitridol',b:'Henetix',f:'Guerbet',t:'Monômero não iônico, baixa osmolaridade',c:[300,350]},
+ {n:'Iodixanol',b:'Visipaque',f:'GE HealthCare',t:'Dímero não iônico, iso-osmolar',c:[270,320]},
+];
+$('iAgent').innerHTML=IOD.map((x,i)=>`<optgroup label="${x.n}">`+x.c.map(c=>`<option value="${i}:${c}">${x.b} ${c}</option>`).join('')+'</optgroup>').join('')+'<option value="outro">Outro (escolher concentração)</option>';
+$('iTable').innerHTML=IOD.map(x=>`<tr><td>${x.n}</td><td>${x.b} <small style="color:var(--muted)">(${x.f})</small></td><td>${x.t}</td><td>${x.c.join(', ')}</td></tr>`).join('');
+function iSync(){
+  const v=$('iAgent').value,outro=v==='outro';
+  $('conc').disabled=!outro;
+  if(!outro)$('conc').value=v.split(':')[1];
+}
+$('iAgent').addEventListener('change',()=>{iSync();dose()});
+iSync();
 const GAD=[
  {n:'Gadobutrol',b:'Gadovist',st:'Macrocíclico',M:1.0,d:0.1},
  {n:'Gadoterato',b:'Dotarem, Clariscan',st:'Macrocíclico',M:0.5,d:0.1},
@@ -455,9 +467,10 @@ $('gTable').innerHTML=GAD.map(g=>`<tr><td>${g.n}</td><td>${g.b}</td><td>${g.st}<
 
 function dose(){
   const w=num($('w')),c=+$('conc').value,gk=+$('gik').value,t=num($('tinj'));
+  const iv=$('iAgent').value,ip=iv==='outro'?null:IOD[+iv.split(':')[0]];
   if(w>0){
     const gI=w*gk,vol=gI*1000/c;
-    $('oVol').textContent=fmt(vol)+' mL';$('oGI').textContent=fmt(gI,1)+' g de iodo';
+    $('oVol').textContent=fmt(vol)+' mL';$('oGI').textContent=(ip?ip.b+' '+c+' · ':'')+fmt(gI,1)+' g de iodo';
     if(t>0){const f=vol/t;$('oFlow').textContent=fmt(f,1)+' mL/s';$('oIDR').textContent='IDR '+fmt(f*c/1000,2)+' gI/s'}
     else{$('oFlow').textContent='–';$('oIDR').innerHTML='&nbsp;'}
     const warn=vol>150?'<b>Volume acima de 150 mL:</b> muitos serviços limitam o volume máximo; confira o teto do protocolo. ':'';
