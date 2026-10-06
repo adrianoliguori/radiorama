@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Classificações · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS, PI-RADS v2.1 e PI-QUAL v2 com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,7 +105,7 @@ nav.tabs button[aria-selected=true]{color:var(--ink);font-weight:700;border-top-
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .row>*{flex:1;min-width:150px}
 .rads{display:none}.rads.active{display:block}
-fieldset{border:0;margin:0 0 18px;padding:0}
+fieldset{border:0;margin:0 0 18px;padding:0;min-width:0}
 legend{font-weight:700;font-size:18px;margin-bottom:6px;padding:0}
 .opts{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
 .opts label{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer}
@@ -364,6 +364,42 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <p class="hint">Formato: soma + sufixos. Ex.: 1 + 2 + 3 + a + 2, com hilo = 8ah. Escores mais altos se associam a mais complicações, maior tempo de isquemia e maior chance de fístula urinária após nefrectomia parcial.</p>
 </section>
 
+<section id="pirads" class="panel" aria-labelledby="h-pirads">
+  <h2 id="h-pirads">PI-RADS v2.1</h2>
+  <p class="lead">Probabilidade de câncer de próstata clinicamente significativo por lesão na RM. Escolha a zona e o protocolo e marque o escore de cada sequência.</p>
+  <div class="seg" role="group" aria-label="Zona" style="max-width:480px;margin-bottom:10px">
+    <button type="button" id="prPZ" aria-pressed="true">Zona periférica</button>
+    <button type="button" id="prTZ" aria-pressed="false">Zona de transição</button>
+  </div>
+  <div class="seg" role="group" aria-label="Protocolo" style="max-width:480px;margin-bottom:18px">
+    <button type="button" id="prMp" aria-pressed="true">Com contraste (mpMRI)</button>
+    <button type="button" id="prBp" aria-pressed="false">Sem contraste (bpMRI)</button>
+  </div>
+  <div class="result sticky-res" id="prOut"></div>
+  <div id="prForm"></div>
+  <button type="button" class="btn ghost" id="prReset" style="margin-bottom:8px">Limpar</button>
+
+  <h3>Categorias</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>PI-RADS</th><th>Câncer clinicamente significativo</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Muito baixa probabilidade (altamente improvável)</td></tr>
+      <tr><td>2</td><td>Baixa (improvável)</td></tr>
+      <tr><td>3</td><td>Intermediária (incerto)</td></tr>
+      <tr><td>4</td><td>Alta (provável)</td></tr>
+      <tr><td>5</td><td>Muito alta (altamente provável)</td></tr>
+    </tbody></table></div>
+
+  <h3>Como se chega ao escore</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Zona</th><th>Sequência dominante</th><th>Regras</th></tr></thead>
+    <tbody>
+      <tr><td>Periférica</td><td>Difusão</td><td>Escore = difusão. Difusão 3 com DCE positivo sobe para 4. Sem difusão adequada, usa o T2 (T2 3 com DCE positivo sobe para 4). Sem contraste, difusão 3 permanece 3.</td></tr>
+      <tr><td>Transição</td><td>T2</td><td>Escore = T2, com dois ajustes: T2 2 com difusão ≥ 4 sobe para 3; T2 3 com difusão 5 sobe para 4. O DCE não altera o escore.</td></tr>
+    </tbody></table></div>
+  <p class="hint">Lesões da zona central e do estroma fibromuscular anterior são avaliadas pelos critérios da zona mais próxima, considerando a simetria (zona central) e o aspecto do estroma. Lesão com extensão extraprostática definida ou comportamento invasivo é 5 na sequência dominante, qualquer que seja o tamanho.</p>
+</section>
+
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
   <p>Baseado em:</p>
@@ -373,6 +409,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
     <li>de Rooij M et al. PI-QUAL version 2. Eur Radiol 2024;34:7068–79</li>
     <li>ACR O-RADS MRI Risk Stratification and Management System (2024); Sadowski EA et al. Radiology 2022;303:35–47</li>
     <li>Kutikov A, Uzzo RG. J Urol 2009;182:844–53; Parsons RB et al. AJR 2012;199:W355–9</li>
+    <li>Turkbey B et al. PI-RADS v2.1: 2019 update of Prostate Imaging Reporting and Data System version 2. Eur Urol 2019;76:340–51</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
   </ul>
 </footer>
@@ -384,6 +421,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <button role="tab" data-t="renal" aria-selected="false" aria-label="Nefrometria R.E.N.A.L.">RENAL</button>
   <button role="tab" data-t="orads" aria-selected="false" aria-label="O-RADS RM">O-RADS</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
+  <button role="tab" data-t="pirads" aria-selected="false" aria-label="PI-RADS v2.1">PI-RADS</button>
   <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
 </div></nav>
 
@@ -738,6 +776,76 @@ function renal(){
 }
 document.querySelectorAll('#renal input').forEach(el=>el.addEventListener('change',renal));
 renal();
+
+/* PI-RADS v2.1 */
+const PR={
+ dwi:[
+  ['Sem alteração no ADC e no b alto'],
+  ['Hipossinal linear ou em cunha no ADC e/ou hipersinal linear ou em cunha no b alto'],
+  ['Hipossinal focal no ADC e/ou hipersinal focal no b alto','Pode ser acentuado no ADC ou no b alto, mas não em ambos'],
+  ['Hipossinal acentuado no ADC e hipersinal acentuado no b alto, < 1,5 cm','Focal'],
+  ['Igual ao 4, mas ≥ 1,5 cm ou com extensão extraprostática/comportamento invasivo']],
+ t2pz:[
+  ['Hipersinal homogêneo (normal)'],
+  ['Hipossinal leve linear, em cunha ou difuso','Margens geralmente indistintas'],
+  ['Sinal heterogêneo ou hipossinal moderado arredondado, não circunscrito','Inclui o que não se encaixa em 2, 4 ou 5'],
+  ['Hipossinal moderado homogêneo, circunscrito, confinado à próstata, < 1,5 cm'],
+  ['Igual ao 4, mas ≥ 1,5 cm ou com extensão extraprostática/comportamento invasivo']],
+ t2tz:[
+  ['Zona de transição normal (rara) ou nódulo redondo completamente encapsulado','Nódulo típico de HPB'],
+  ['Nódulo quase todo encapsulado, nódulo homogêneo circunscrito sem cápsula, ou área homogênea levemente hipointensa entre nódulos','Nódulo atípico'],
+  ['Sinal heterogêneo com margens obscurecidas','Inclui o que não se encaixa em 2, 4 ou 5'],
+  ['Lenticular ou não circunscrito, homogêneo, moderadamente hipointenso, < 1,5 cm','Aspecto em "carvão apagado"'],
+  ['Igual ao 4, mas ≥ 1,5 cm ou com extensão extraprostática/comportamento invasivo']],
+ dce:[
+  ['Negativo','Sem realce precoce; ou realce difuso/multifocal sem correspondência com achado focal no T2 ou na difusão; ou realce focal em lesão com aspecto de HPB no T2 (inclusive nódulo de HPB extruso na zona periférica)'],
+  ['Positivo','Realce focal, mais precoce ou simultâneo ao tecido normal adjacente, correspondendo a achado suspeito no T2 e/ou na difusão']],
+};
+let prZone='pz',prMp=true,prA={};
+function prGroup(k,legend,opts,extra){
+  return `<fieldset><legend>${legend}</legend><div class="opts">${opts.map((o,i)=>{const v=k==='dce'?['neg','pos'][i]:String(i+1);
+    return `<label><input type="radio" name="pr-${k}" value="${v}"${prA[k]===v?' checked':''}><span class="txt">${o[0]}${o[1]?`<small>${o[1]}</small>`:''}</span>${k==='dce'?'':`<span class="pts">${i+1}</span>`}</label>`}).join('')}${extra||''}</div></fieldset>`;
+}
+function pirads(){
+  const pz=prZone==='pz';
+  if(!pz&&prA.dwi==='x')delete prA.dwi;
+  const dwiX=`<label><input type="radio" name="pr-dwi" value="x"${prA.dwi==='x'?' checked':''}><span class="txt">Difusão inadequada ou ausente<small>O escore passa a ser definido pelo T2</small></span></label>`;
+  const gDwi=prGroup('dwi',pz?'Difusão (dominante)':'Difusão',PR.dwi,pz?dwiX:'');
+  const gT2=prGroup('t2',pz?'T2':'T2 (dominante)',pz?PR.t2pz:PR.t2tz);
+  const showDce=pz&&prMp;
+  $('prForm').innerHTML=(pz?gDwi+gT2:gT2+gDwi)+(showDce?prGroup('dce','Contraste dinâmico (DCE)',PR.dce):'');
+  const d=prA.dwi&&prA.dwi!=='x'?+prA.dwi:null,t=prA.t2?+prA.t2:null,c=prA.dce;
+  let sc=null,why='',need=[];
+  if(pz){
+    if(prA.dwi==='x'){
+      if(t===null)need.push('T2');else if(t===3&&prMp&&!c)need.push('DCE');
+      else{sc=t;why='Difusão inadequada: escore pelo T2';if(t===3&&prMp&&c==='pos'){sc=4;why+='; DCE positivo eleva 3 para 4'}}
+    }else if(d===null)need.push('difusão');
+    else if(d===3&&prMp&&!c)need.push('DCE');
+    else{sc=d;why='Zona periférica: escore pela difusão';if(d===3&&prMp&&c==='pos'){sc=4;why+='; DCE positivo eleva 3 para 4'}else if(d===3&&!prMp)why+=' (sem DCE, permanece 3)'}
+  }else{
+    if(t===null)need.push('T2');
+    else if((t===2||t===3)&&d===null)need.push('difusão');
+    else{sc=t;why='Zona de transição: escore pelo T2';
+      if(t===2&&d>=4){sc=3;why+='; difusão ≥ 4 eleva 2 para 3'}
+      if(t===3&&d===5){sc=4;why+='; difusão 5 eleva 3 para 4'}}
+  }
+  const out=$('prOut');
+  if(sc===null){out.innerHTML=`<p class="hint" style="margin:0">Marque ${need.join(' e ')}.</p>`;return}
+  const NM=['','Muito baixa','Baixa','Intermediária','Alta','Muito alta'];
+  const LV=['','lv1','lv2','lv3','lv4','lv5'];
+  const seq=[t!==null&&`T2 ${t}`,prA.dwi==='x'?'difusão inadequada':d!==null&&`difusão ${d}`,showDce&&c&&`DCE ${c==='pos'?'+':'−'}`].filter(Boolean).join(' · ');
+  out.innerHTML=`<div class="tr"><span class="lvl ${LV[sc]}">${sc}</span><div class="meta"><b>PI-RADS ${sc}: probabilidade ${NM[sc].toLowerCase()}</b><span class="unit">${seq}</span></div></div><p style="margin:12px 0 0">${why}.</p>`;
+}
+function prSet(btnOn,btnOff){$(btnOn).setAttribute('aria-pressed',true);$(btnOff).setAttribute('aria-pressed',false)}
+$('prPZ').onclick=()=>{prZone='pz';prSet('prPZ','prTZ');pirads()};
+$('prTZ').onclick=()=>{prZone='tz';delete prA.t2;prSet('prTZ','prPZ');pirads()};
+$('prPZ').addEventListener('click',()=>{delete prA.t2;pirads()});
+$('prMp').onclick=()=>{prMp=true;prSet('prMp','prBp');pirads()};
+$('prBp').onclick=()=>{prMp=false;delete prA.dce;prSet('prBp','prMp');pirads()};
+$('prForm').addEventListener('change',e=>{prA[e.target.name.slice(3)]=e.target.value;pirads()});
+$('prReset').onclick=()=>{prA={};pirads()};
+pirads();
 </script>
 </body>
 </html>
