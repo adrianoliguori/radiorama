@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Classificações · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS, PI-RADS v2.1, PI-QUAL v2 e chemical shift adrenal com cálculo da categoria, conduta e texto de laudo.">
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS, PI-RADS v2.1, PI-QUAL v2 e nódulo adrenal (chemical shift e washout) com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,6 +137,7 @@ legend .sc{font-weight:700;font-size:15px;color:var(--muted);margin-left:8px;fon
 nav.tabs .in{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 nav.tabs .in::-webkit-scrollbar{display:none}
 nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:nowrap}
+[hidden]{display:none!important}
 .home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
 </style>
 </head>
@@ -401,14 +402,16 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
 </section>
 
 <section id="adrenal" class="panel" aria-labelledby="h-adrenal">
-  <h2 id="h-adrenal">Adrenal: chemical shift</h2>
-  <p class="lead">Nódulo adrenal na RM: a queda de sinal da sequência em fase (in-phase) para a fora de fase (opposed-phase) indica gordura intracitoplasmática, típica do adenoma rico em lipídio. Meça a intensidade de sinal (ROI) e veja o índice de queda.</p>
-  <div class="seg" role="group" aria-label="Campo magnético" style="max-width:480px;margin-bottom:18px">
-    <button type="button" id="adT15" aria-pressed="true">1,5 T</button>
-    <button type="button" id="adT3" aria-pressed="false">3 T</button>
+  <h2 id="h-adrenal">Nódulo adrenal: é adenoma?</h2>
+  <p class="lead">Caracterização de nódulo adrenal pela RM (chemical shift, em fase e fora de fase) ou pela TC (densidade sem contraste e washout).</p>
+  <div class="seg" role="group" aria-label="Método" style="max-width:480px;margin-bottom:18px">
+    <button type="button" id="adRM" aria-pressed="true">RM</button>
+    <button type="button" id="adTC" aria-pressed="false">TC</button>
   </div>
   <div class="result sticky-res" id="adOut"></div>
 
+  <div id="adRMbox">
+  <p class="hint">A queda de sinal da sequência em fase (in-phase) para a fora de fase (opposed-phase) indica gordura intracitoplasmática, típica do adenoma rico em lipídio. Meça a intensidade de sinal com uma ROI.</p>
   <fieldset><legend>Nódulo adrenal</legend>
     <div class="row">
       <label class="f">Sinal em fase (IP)<input id="adLip" type="number" inputmode="decimal" step="any" min="0" placeholder="ex.: 420"></label>
@@ -421,28 +424,46 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
       <label class="f">Sinal fora de fase (OP)<input id="adSop" type="number" inputmode="decimal" step="any" min="0" placeholder="ex.: 370"></label>
     </div>
   </fieldset>
+  </div>
+
+  <div id="adTCbox" hidden>
+  <p class="hint">Densidade média em UH, com ROI cobrindo ao menos metade a dois terços do nódulo, sem bordas, necrose ou calcificação. Fases: sem contraste, portal (60–75 s) e tardia (15 min).</p>
+  <fieldset><legend>Densidade do nódulo (UH)</legend>
+    <div class="row">
+      <label class="f">Sem contraste<input id="adHu0" type="number" inputmode="decimal" step="any" placeholder="ex.: 28"></label>
+      <label class="f">Portal (60–75 s)<input id="adHuE" type="number" inputmode="decimal" step="any" placeholder="ex.: 95"></label>
+      <label class="f">Tardia (15 min)<input id="adHuD" type="number" inputmode="decimal" step="any" placeholder="ex.: 45"></label>
+    </div>
+    <p class="hint" style="margin-top:6px">Sem a fase sem contraste, calcula-se só o washout relativo.</p>
+  </fieldset>
+  </div>
+
   <label class="f" style="max-width:240px;margin:0 0 18px">Maior diâmetro do nódulo (cm)<input id="adSize" type="number" inputmode="decimal" step="0.1" min="0" placeholder="ex.: 2,1"></label>
 
   <fieldset><legend>Situações que pedem cautela</legend><div class="opts" id="adFlags">
-    <label><input type="checkbox" value="te"><span class="txt">TE fora de fase maior que o TE em fase<small>A queda pode ser só decaimento T2*; o ideal é adquirir o fora de fase com o TE menor (ex.: 2,2 e 4,4 ms em 1,5 T)</small></span></label>
-    <label><input type="checkbox" value="fe"><span class="txt">Baço com sobrecarga de ferro<small>Invalida a razão adrenal/baço; use o índice de sinal</small></span></label>
-    <label><input type="checkbox" value="ca"><span class="txt">Neoplasia primária de rim (células claras) ou hepatocarcinoma conhecidos<small>Suas metástases podem ter gordura intracelular</small></span></label>
-    <label><input type="checkbox" value="het"><span class="txt">Lesão heterogênea, com necrose, hemorragia ou crescimento<small>Considerar carcinoma adrenocortical ou feocromocitoma, que raramente também perdem sinal</small></span></label>
-    <label><input type="checkbox" value="mac"><span class="txt">Gordura macroscópica (artefato em "tinta nanquim" intralesional, queda no fat-sat)<small>Sugere mielolipoma; o índice não se aplica</small></span></label>
+    <label class="rmonly"><input type="checkbox" value="te"><span class="txt">TE fora de fase maior que o TE em fase<small>A queda pode ser só decaimento T2*; o ideal é adquirir o fora de fase com o TE menor (ex.: 2,2 e 4,4 ms em 1,5 T)</small></span></label>
+    <label class="rmonly"><input type="checkbox" value="fe"><span class="txt">Baço com sobrecarga de ferro<small>Invalida a razão adrenal/baço; use o índice de sinal</small></span></label>
+    <label><input type="checkbox" value="ca"><span class="txt">Neoplasia primária de rim (células claras) ou hepatocarcinoma conhecidos<small>Suas metástases podem ter gordura intracelular e lavar o contraste rapidamente</small></span></label>
+    <label><input type="checkbox" value="feo"><span class="txt">Suspeita clínica de feocromocitoma<small>Pode simular adenoma no washout; pedir metanefrinas</small></span></label>
+    <label><input type="checkbox" value="het"><span class="txt">Lesão heterogênea, com necrose, hemorragia ou crescimento<small>Considerar carcinoma adrenocortical, feocromocitoma ou metástase</small></span></label>
+    <label><input type="checkbox" value="mac"><span class="txt">Gordura macroscópica<small>RM: queda de sinal no fat-sat; TC: densidade negativa franca (&lt; −30 UH). Sugere mielolipoma</small></span></label>
   </div></fieldset>
 
   <h3>Texto de laudo</h3>
-  <div class="report" id="adReport">Preencha os sinais do nódulo.</div>
+  <div class="report" id="adReport">Preencha os valores do nódulo.</div>
   <button type="button" class="btn" id="adCopy">Copiar texto</button>
 
   <h3>Fórmulas e limiares</h3>
   <div class="tablewrap"><table>
-    <thead><tr><th>Medida</th><th>Fórmula</th><th>Sugere adenoma</th></tr></thead>
+    <thead><tr><th>Método</th><th>Medida</th><th>Fórmula</th><th>Sugere adenoma</th></tr></thead>
     <tbody>
-      <tr><td>Índice de intensidade de sinal (SII)</td><td>(IP − OP) ÷ IP × 100</td><td>&gt; 16,5% (1,5 T). Em 3 T o ponto de corte ótimo é menor (~7–12%)</td></tr>
-      <tr><td>Razão adrenal/baço (ASR)</td><td>(OP<sub>adrenal</sub> ÷ OP<sub>baço</sub>) ÷ (IP<sub>adrenal</sub> ÷ IP<sub>baço</sub>)</td><td>&lt; 0,71</td></tr>
+      <tr><td>RM</td><td>Índice de intensidade de sinal (SII)</td><td>(IP − OP) ÷ IP × 100</td><td>&gt; 16,5%</td></tr>
+      <tr><td>RM</td><td>Razão adrenal/baço (ASR)</td><td>(OP<sub>adrenal</sub> ÷ OP<sub>baço</sub>) ÷ (IP<sub>adrenal</sub> ÷ IP<sub>baço</sub>)</td><td>&lt; 0,71</td></tr>
+      <tr><td>TC</td><td>Densidade sem contraste</td><td>Média da ROI</td><td>≤ 10 UH (adenoma rico em lipídio, especificidade ~98%)</td></tr>
+      <tr><td>TC</td><td>Washout absoluto (APW)</td><td>(portal − tardia) ÷ (portal − sem contraste) × 100</td><td>≥ 60%</td></tr>
+      <tr><td>TC</td><td>Washout relativo (RPW)</td><td>(portal − tardia) ÷ portal × 100</td><td>≥ 40%</td></tr>
     </tbody></table></div>
-  <p class="hint">ROI cobrindo ao menos metade a dois terços do nódulo, na mesma posição nas duas sequências, longe das bordas (artefato de deslocamento químico) e de áreas de necrose. A avaliação visual (queda nítida de sinal em relação ao baço) costuma bastar; a medida ajuda nos casos limítrofes. Cerca de 10–30% dos adenomas são pobres em lipídio e não perdem sinal: nesses casos, sem queda, a lesão é indeterminada e a TC com washout pode ajudar. Fígado não é boa referência, pela esteatose.</p>
+  <p class="hint">RM: a avaliação visual (queda nítida de sinal em relação ao baço) costuma bastar; a medida ajuda nos casos limítrofes. Fígado não é boa referência, pela esteatose. Em 3 T a queda tende a ser menor. TC: se o nódulo mede ≤ 10 UH sem contraste, o diagnóstico de adenoma está feito e o washout é desnecessário. Cerca de 10–30% dos adenomas são pobres em lipídio: para eles serve o washout. Nódulo sem contraste &gt; 43 UH, heterogêneo ou &gt; 4 cm merece atenção, mesmo com washout favorável. O washout perde especificidade em feocromocitoma e em metástases hipervasculares (rim, fígado), e lesão com realce portal &lt; 10 UH acima da fase sem contraste (ou densidade portal muito baixa) não tem washout confiável.</p>
 </section>
 
 <footer>
@@ -456,7 +477,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
     <li>Kutikov A, Uzzo RG. J Urol 2009;182:844–53; Parsons RB et al. AJR 2012;199:W355–9</li>
     <li>Turkbey B et al. PI-RADS v2.1: 2019 update of Prostate Imaging Reporting and Data System version 2. Eur Urol 2019;76:340–51</li>
     <li>Fujiyoshi F et al. AJR 2003;180:1649–57; Halefoglu AM et al. J Comput Assist Tomogr 2012;36:367–74 (SII &gt; 16,5%, ASR &lt; 0,71)</li>
-    <li>Ream JM et al. Chemical-shift MRI of adrenal lesions at 1.5 T and 3 T. AJR 2015;204:536–41</li>
+    <li>Caoili EM et al. Adrenal masses: characterization with combined unenhanced and delayed enhanced CT. Radiology 2002;222:629–33</li>
     <li>Mayo-Smith WW et al. Management of incidental adrenal masses: ACR Incidental Findings Committee white paper. J Am Coll Radiol 2017;14:1038–44</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
   </ul>
@@ -469,7 +490,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <button role="tab" data-t="renal" aria-selected="false" aria-label="Nefrometria R.E.N.A.L.">RENAL</button>
   <button role="tab" data-t="orads" aria-selected="false" aria-label="O-RADS RM">O-RADS</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
-  <button role="tab" data-t="adrenal" aria-selected="false" aria-label="Adrenal: chemical shift">ADRENAL</button>
+  <button role="tab" data-t="adrenal" aria-selected="false" aria-label="Nódulo adrenal">ADRENAL</button>
   <button role="tab" data-t="pirads" aria-selected="false" aria-label="PI-RADS v2.1">PI-RADS</button>
   <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
 </div></nav>
@@ -896,45 +917,72 @@ $('prForm').addEventListener('change',e=>{prA[e.target.name.slice(3)]=e.target.v
 $('prReset').onclick=()=>{prA={};pirads()};
 pirads();
 
-/* Adrenal: chemical shift */
-let ad3T=false;
-function adrenal(){
-  const Lip=num($('adLip')),Lop=num($('adLop')),Sip=num($('adSip')),Sop=num($('adSop')),sz=num($('adSize'));
-  const F=new Set([...document.querySelectorAll('#adFlags input:checked')].map(e=>e.value));
-  const out=$('adOut'),rep=$('adReport');
-  if(F.has('mac')){
-    out.innerHTML=`<div class="tr"><span class="lvl lvb">MAC</span><div class="meta"><b>Gordura macroscópica</b><span class="unit">Sugere mielolipoma; o índice de chemical shift não se aplica</span></div></div>`;
-    rep.textContent='Nódulo adrenal com gordura macroscópica, compatível com mielolipoma.';return}
-  if(!(Lip>0)||!(Lop>=0)){out.innerHTML='<p class="hint" style="margin:0">Informe o sinal do nódulo em fase e fora de fase.</p>';rep.textContent='Preencha os sinais do nódulo.';return}
-  const sii=(Lip-Lop)/Lip*100;
-  const hasS=Sip>0&&Sop>0&&!F.has('fe');
-  const asr=hasS?(Lop/Sop)/(Lip/Sip):NaN;
-  const siiPos=sii>16.5, sii3=ad3T&&sii>7.4&&sii<=16.5;
-  const asrPos=hasS&&asr<0.71;
-  let cls,lbl,head,txt;
-  if(siiPos||asrPos){cls='lv1';lbl='Adenoma';head='Queda de sinal compatível com adenoma rico em lipídio';
-    txt='Queda de sinal na sequência fora de fase, indicando gordura intracitoplasmática, compatível com adenoma.'}
-  else if(sii3){cls='lv3';lbl='Provável';head='Queda discreta: limítrofe, favorece adenoma em 3 T';
-    txt='Queda discreta de sinal na sequência fora de fase; em 3 T o limiar é menor, favorecendo adenoma, mas o achado é limítrofe.'}
-  else{cls='lv4';lbl='Indet.';head='Sem queda significativa: indeterminado';
-    txt='Sem queda significativa de sinal na sequência fora de fase. Achado indeterminado por chemical shift (adenoma pobre em lipídio não pode ser diferenciado de outras lesões); considerar TC com protocolo de washout, comparação com exames anteriores ou seguimento, conforme o contexto clínico.'}
-  const disc=hasS&&(siiPos!==asrPos);
-  const warns=[];
-  if(F.has('te'))warns.push('TE fora de fase maior que o em fase: parte da queda pode ser efeito T2*.');
-  if(F.has('fe')&&Sip>0)warns.push('Baço com ferro: razão adrenal/baço desconsiderada.');
-  if(F.has('ca')&&(siiPos||asrPos||sii3))warns.push('Metástase de carcinoma de células claras renais ou de hepatocarcinoma pode conter gordura intracelular.');
-  if(F.has('het'))warns.push('Heterogeneidade, necrose ou crescimento não são típicos de adenoma.');
-  if(sz>4)warns.push('Lesão > 4 cm: pelo ACR, considerar ressecção independentemente do aspecto.');
-  if(disc)warns.push('Índice de sinal e razão adrenal/baço discordantes: interpretar com cautela.');
-  if(ad3T&&!siiPos)warns.push('Em 3 T a queda tende a ser menor; o limiar ótimo relatado é ~7–12%.');
-  out.innerHTML=`<div class="tr"><span class="lvl ${cls}">${lbl}</span><div class="meta"><b>${head}</b><span class="unit">SII ${fmt(sii,1)}%${hasS?` · ASR ${fmt(asr,2)}`:''} · ${ad3T?'3 T':'1,5 T'}</span></div></div>`+
-    (warns.length?`<ul class="path">${warns.map(w=>`<li>${w}</li>`).join('')}</ul>`:'');
-  const m=`Índice de intensidade de sinal: ${fmt(sii,1)}%${hasS?`; razão adrenal/baço: ${fmt(asr,2)}`:''}.`;
-  const szt=sz>0?` medindo ${fmt(sz,1)} cm`:'';
-  rep.textContent=`Nódulo adrenal${szt}. ${txt} ${m}`+(F.has('te')||F.has('ca')||F.has('het')||sz>4?' '+warns.filter(w=>!w.startsWith('Em 3 T')&&!w.startsWith('Baço')).join(' '):'');
+/* Nódulo adrenal: RM chemical shift e TC washout */
+let adMode='rm';
+function adWarns(F,sz,fav){
+  const w=[];
+  if(F.has('ca')&&fav)w.push('Metástase de carcinoma de células claras renais ou de hepatocarcinoma pode conter gordura intracelular e lavar o contraste como adenoma.');
+  if(F.has('feo'))w.push('Feocromocitoma pode simular adenoma; correlacionar com metanefrinas.');
+  if(F.has('het'))w.push('Heterogeneidade, necrose ou crescimento não são típicos de adenoma.');
+  if(sz>4)w.push('Lesão > 4 cm: pelo ACR, considerar ressecção independentemente do aspecto.');
+  return w;
 }
-$('adT15').onclick=()=>{ad3T=false;$('adT15').setAttribute('aria-pressed',true);$('adT3').setAttribute('aria-pressed',false);adrenal()};
-$('adT3').onclick=()=>{ad3T=true;$('adT3').setAttribute('aria-pressed',true);$('adT15').setAttribute('aria-pressed',false);adrenal()};
+function adRender(cls,lbl,head,unit,warns,txt,meas){
+  $('adOut').innerHTML=`<div class="tr"><span class="lvl ${cls}">${lbl}</span><div class="meta"><b>${head}</b><span class="unit">${unit}</span></div></div>`+(warns.length?`<ul class="path">${warns.map(w=>`<li>${w}</li>`).join('')}</ul>`:'');
+  const sz=num($('adSize'));
+  $('adReport').textContent=`Nódulo adrenal${sz>0?` medindo ${fmt(sz,1)} cm`:''}. ${txt}${meas?' '+meas:''}${warns.length?' '+warns.join(' '):''}`;
+}
+function adrenal(){
+  const F=new Set([...document.querySelectorAll('#adFlags label:not([hidden]) input:checked')].map(e=>e.value));
+  const sz=num($('adSize'));
+  if(F.has('mac')){adRender('lvb','MAC','Gordura macroscópica','Sugere mielolipoma; os índices não se aplicam',[],'Nódulo com gordura macroscópica, compatível com mielolipoma.','');return}
+  return adMode==='rm'?adRM(F,sz):adTC(F,sz);
+}
+function adRM(F,sz){
+  const Lip=num($('adLip')),Lop=num($('adLop')),Sip=num($('adSip')),Sop=num($('adSop'));
+  if(!(Lip>0)||!(Lop>=0)){$('adOut').innerHTML='<p class="hint" style="margin:0">Informe o sinal do nódulo em fase e fora de fase.</p>';$('adReport').textContent='Preencha os valores do nódulo.';return}
+  const sii=(Lip-Lop)/Lip*100,hasS=Sip>0&&Sop>0&&!F.has('fe'),asr=hasS?(Lop/Sop)/(Lip/Sip):NaN;
+  const sp=sii>16.5,ap=hasS&&asr<0.71,fav=sp||ap;
+  const w=adWarns(F,sz,fav);
+  if(F.has('te'))w.unshift('TE fora de fase maior que o em fase: parte da queda pode ser efeito T2*.');
+  if(F.has('fe')&&Sip>0)w.push('Baço com ferro: razão adrenal/baço desconsiderada.');
+  if(hasS&&sp!==ap)w.push('Índice de sinal e razão adrenal/baço discordantes: interpretar com cautela.');
+  const meas=`Índice de intensidade de sinal: ${fmt(sii,1)}%${hasS?`; razão adrenal/baço: ${fmt(asr,2)}`:''}.`;
+  const unit=`SII ${fmt(sii,1)}%${hasS?` · ASR ${fmt(asr,2)}`:''}`;
+  if(fav)adRender('lv1','Adenoma','Queda de sinal compatível com adenoma rico em lipídio',unit,w,'Queda de sinal na sequência fora de fase, indicando gordura intracitoplasmática, compatível com adenoma.',meas);
+  else adRender('lv4','Indet.','Sem queda significativa: indeterminado',unit,w,'Sem queda significativa de sinal na sequência fora de fase. Achado indeterminado por chemical shift (adenoma pobre em lipídio não pode ser diferenciado de outras lesões); considerar TC com protocolo de washout, comparação com exames anteriores ou seguimento, conforme o contexto clínico.',meas);
+}
+function adTC(F,sz){
+  const u=num($('adHu0')),e=num($('adHuE')),d=num($('adHuD'));
+  const hu=v=>`${fmt(v,0)} UH`;
+  const hasU=isFinite(u),hasE=isFinite(e),hasD=isFinite(d);
+  if(!hasU&&!(hasE&&hasD)){$('adOut').innerHTML='<p class="hint" style="margin:0">Informe a densidade sem contraste ou as fases portal e tardia.</p>';$('adReport').textContent='Preencha os valores do nódulo.';return}
+  if(hasU&&u<=10){
+    const w=adWarns(F,sz,true);
+    adRender('lv1','Adenoma','Densidade ≤ 10 UH: adenoma rico em lipídio',`Sem contraste ${hu(u)}`,w,`Densidade de ${hu(u)} na fase sem contraste, compatível com adenoma rico em lipídio.`,'');return}
+  if(!(hasE&&hasD)){
+    const w=adWarns(F,sz,false);if(u>43)w.unshift('Densidade sem contraste > 43 UH: menos típico de adenoma.');
+    adRender('lv3','Indet.','Densidade > 10 UH: indeterminado sem washout',`Sem contraste ${hu(u)}`,w,`Densidade de ${hu(u)} na fase sem contraste, acima do limiar para adenoma rico em lipídio. Achado indeterminado; considerar TC com protocolo de washout ou RM com chemical shift.`,'');return}
+  const rpw=(e-d)/e*100,apw=hasU?(e-d)/(e-u)*100:NaN;
+  const w=[];
+  if(hasU&&e-u<10)w.push('Realce portal < 10 UH: washout pouco confiável (lesão hipovascular ou cística).');
+  if(e<=0)w.push('Densidade portal ≤ 0 UH: washout relativo não se aplica.');
+  if(hasU&&u>43)w.push('Densidade sem contraste > 43 UH: menos típico de adenoma; cautela mesmo com washout favorável.');
+  const ap=hasU&&apw>=60,rp=rpw>=40,fav=hasU?ap:rp;
+  if(hasU&&ap!==rp)w.push('Washout absoluto e relativo discordantes: prevalece o absoluto, mas interpretar com cautela.');
+  w.push(...adWarns(F,sz,fav));
+  const unit=[hasU&&`APW ${fmt(apw,0)}%`,`RPW ${fmt(rpw,0)}%`,hasU&&`sem contraste ${hu(u)}`].filter(Boolean).join(' · ');
+  const meas=`Densidades: ${hasU?`sem contraste ${hu(u)}, `:''}portal ${hu(e)}, tardia ${hu(d)}. ${hasU?`Washout absoluto: ${fmt(apw,0)}%; `:''}washout relativo: ${fmt(rpw,0)}%.`;
+  if(fav)adRender('lv1','Adenoma',`Washout compatível com adenoma${hasU?'':' (só relativo)'}`,unit,w,'Lavagem rápida do contraste na fase tardia, compatível com adenoma pobre em lipídio.',meas);
+  else adRender('lv4','Indet.','Washout insuficiente: indeterminado',unit,w,'Lavagem do contraste abaixo dos limiares para adenoma. Achado indeterminado; considerar comparação com exames anteriores, avaliação funcional, seguimento ou investigação adicional, conforme o contexto clínico.',meas);
+}
+function adSetMode(m){
+  adMode=m;$('adRM').setAttribute('aria-pressed',m==='rm');$('adTC').setAttribute('aria-pressed',m==='tc');
+  $('adRMbox').hidden=m!=='rm';$('adTCbox').hidden=m!=='tc';
+  document.querySelectorAll('#adFlags .rmonly').forEach(l=>l.hidden=m!=='rm');
+  adrenal();
+}
+$('adRM').onclick=()=>adSetMode('rm');$('adTC').onclick=()=>adSetMode('tc');
 document.querySelectorAll('#adrenal input').forEach(el=>el.addEventListener('input',adrenal));
 $('adCopy').onclick=async()=>{
   try{await navigator.clipboard.writeText($('adReport').textContent);$('adCopy').textContent='Texto copiado'}
