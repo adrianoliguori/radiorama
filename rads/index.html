@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Classificações · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, VI-RADS, PI-RADS v2.1, PI-QUAL v2 e nódulo adrenal (chemical shift e washout) com cálculo da categoria, conduta e texto de laudo.">
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, massa uterina (leiomioma × sarcoma pela difusão), VI-RADS, PI-RADS v2.1, PI-QUAL v2 e nódulo adrenal (chemical shift e washout) com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -317,6 +317,59 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
     </tbody></table></div>
 </section>
 
+<section id="utero" class="panel" aria-labelledby="h-utero">
+  <h2 id="h-utero">Massa uterina: leiomioma ou sarcoma?</h2>
+  <p class="lead">Algoritmo com T2, difusão (b 1000) e ADC para massa miometrial atípica, de crescimento rápido ou suspeita na ultrassonografia.</p>
+  <p class="adj" style="margin:0 0 16px">Somente RM 1,5 T · limiares de ADC não validados em 3 T</p>
+  <div class="result sticky-res" id="utOut"></div>
+
+  <fieldset><legend>1. Linfonodos pélvicos aumentados ou implantes peritoneais?</legend><div class="opts" id="ut-q1">
+    <label><input type="radio" name="ut-ln" value="0"><span class="txt">Não</span></label>
+    <label><input type="radio" name="ut-ln" value="1"><span class="txt">Sim<small>Linfonodo de eixo curto aumentado, implante ou ascite com nódulos</small></span></label>
+  </div></fieldset>
+
+  <fieldset><legend>2. Há área de hipossinal em T2 na massa?</legend><div class="opts" id="ut-q2">
+    <label><input type="radio" name="ut-t2" value="1"><span class="txt">Sim, global ou focal<small>Sinal tão baixo quanto o miométrio externo ou o músculo estriado, mesmo pequena e numa massa heterogênea. Típico de leiomioma</small></span></label>
+    <label><input type="radio" name="ut-t2" value="0"><span class="txt">Não: sinal intermediário ou alto em toda a massa</span></label>
+  </div></fieldset>
+
+  <fieldset><legend>3. Sinal da porção sólida em b 1000, comparado ao endométrio</legend><div class="opts" id="ut-q3">
+    <label><input type="radio" name="ut-dw" value="0"><span class="txt">Menor ou igual ao endométrio<small>Ou menor que o dos linfonodos, se o endométrio não for referência adequada</small></span></label>
+    <label><input type="radio" name="ut-dw" value="1"><span class="txt">Maior que o endométrio</span></label>
+  </div></fieldset>
+
+  <fieldset><legend>4. ADC da porção sólida</legend>
+    <label class="f" style="max-width:280px" id="ut-q4">ADC médio (×10⁻³ mm²/s)<input id="utAdc" type="number" inputmode="decimal" step="0.01" min="0" placeholder="ex.: 0,85"></label>
+    <p class="hint" style="margin-top:6px">ROI na área sólida de menor ADC, evitando necrose, hemorragia e cistos. Aceita também o valor em ×10⁻⁶ (ex.: 850).</p>
+  </fieldset>
+
+  <fieldset><legend>Achados adicionais</legend><div class="opts" id="utFlags">
+    <label><input type="checkbox" value="marg"><span class="txt">Margens irregulares ou infiltrativas</span></label>
+    <label><input type="checkbox" value="meno"><span class="txt">Pós-menopausa</span></label>
+    <label><input type="checkbox" value="hem"><span class="txt">Hemorragia intratumoral<small>Hipersinal em T1 com supressão de gordura</small></span></label>
+    <label><input type="checkbox" value="nec"><span class="txt">Área central sem realce (necrose)</span></label>
+    <label><input type="checkbox" value="cresc"><span class="txt">Crescimento rápido ou crescimento após a menopausa</span></label>
+    <label><input type="checkbox" value="myx"><span class="txt">Hipersinal T2 acentuado, aspecto mixoide</span></label>
+  </div></fieldset>
+
+  <h3>Texto de laudo</h3>
+  <div class="report" id="utReport">Responda às perguntas do algoritmo.</div>
+  <button type="button" class="btn" id="utCopy">Copiar texto</button>
+
+  <h3>Algoritmo e limiares (1,5 T)</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Passo</th><th>Achado</th><th>Leitura</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Linfonodos aumentados ou implantes peritoneais</td><td>Suspeito de sarcoma</td></tr>
+      <tr><td>2</td><td>Hipossinal em T2, global ou focal</td><td>Leiomioma</td></tr>
+      <tr><td>3</td><td>b 1000 menor ou igual ao endométrio</td><td>Leiomioma</td></tr>
+      <tr><td>4</td><td>b 1000 maior que o endométrio e ADC ≤ 0,905</td><td>Suspeito de sarcoma</td></tr>
+      <tr><td>4</td><td>b 1000 maior que o endométrio e ADC 0,905–1,23</td><td>Indeterminado: pesar margens, menopausa, hemorragia e necrose</td></tr>
+      <tr><td>4</td><td>b 1000 maior que o endométrio e ADC &gt; 1,23</td><td>Favorece benignidade (valor preditivo negativo alto)</td></tr>
+    </tbody></table></div>
+  <p class="hint">ADC em ×10⁻³ mm²/s, com b 0 e b 1000 (ou b ≥ 800) em 1,5 T. Em meta-análise, o ADC médio foi cerca de 0,90 nos sarcomas e 1,29 nos leiomiomas, com melhor especificidade quando o ADC é lido junto com T2 e difusão do que isoladamente. Não aplicar o ADC ao leiomioma típico de baixo sinal em T2, que costuma ter ADC baixo. Armadilhas: leiomioma celular (sinal intermediário em T2, difusão alta, ADC baixo, mas margens regulares), leiomioma com deficiência de fumarato hidratase e sarcoma do estroma endometrial. Sarcoma mixoide pode ter ADC alto, mas tem hipersinal T2 acentuado. Na pós-menopausa, “mioma” sintomático ou que cresce é suspeito até prova em contrário.</p>
+</section>
+
 <section id="renal" class="panel" aria-labelledby="h-renal">
   <h2 id="h-renal">Nefrometria R.E.N.A.L.</h2>
   <p class="lead">Complexidade anatômica de massa renal sólida na TC ou RM com contraste, para planejamento cirúrgico (Kutikov e Uzzo, 2009).</p>
@@ -474,6 +527,11 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
     <li>Panebianco V et al. VI-RADS. Eur Urol 2018</li>
     <li>de Rooij M et al. PI-QUAL version 2. Eur Radiol 2024;34:7068–79</li>
     <li>ACR O-RADS MRI Risk Stratification and Management System (2024); Sadowski EA et al. Radiology 2022;303:35–47</li>
+    <li>Abdel Wahab C et al. Diagnostic algorithm to differentiate benign atypical leiomyomas from malignant uterine sarcomas with diffusion-weighted MRI. Radiology 2020;297:361–71</li>
+    <li>Hindman N et al. MRI evaluation of uterine masses for risk of leiomyosarcoma: a consensus statement. Radiology 2023;306:e211658</li>
+    <li>Zlotykamien-Taieb E et al. Novel approach to MRI based risk stratification of uterine myometrial lesions. Eur J Radiol 2025;112126</li>
+    <li>Woo S et al. Utility of ADC values for differentiating uterine sarcomas from leiomyomas: systematic review and meta-analysis. AJR 2024</li>
+    <li>Thomassin-Naggara I et al. How to differentiate benign from malignant myometrial tumours using MR imaging. Eur Radiol 2013;23:2306–14</li>
     <li>Kutikov A, Uzzo RG. J Urol 2009;182:844–53; Parsons RB et al. AJR 2012;199:W355–9</li>
     <li>Turkbey B et al. PI-RADS v2.1: 2019 update of Prostate Imaging Reporting and Data System version 2. Eur Urol 2019;76:340–51</li>
     <li>Fujiyoshi F et al. AJR 2003;180:1649–57; Halefoglu AM et al. J Comput Assist Tomogr 2012;36:367–74 (SII &gt; 16,5%, ASR &lt; 0,71)</li>
@@ -489,6 +547,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <button role="tab" data-t="apendic" aria-selected="false" aria-label="APENDIC-RADS">APENDIC</button>
   <button role="tab" data-t="renal" aria-selected="false" aria-label="Nefrometria R.E.N.A.L.">RENAL</button>
   <button role="tab" data-t="orads" aria-selected="false" aria-label="O-RADS RM">O-RADS</button>
+  <button role="tab" data-t="utero" aria-selected="false" aria-label="Massa uterina: leiomioma ou sarcoma">ÚTERO</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
   <button role="tab" data-t="adrenal" aria-selected="false" aria-label="Nódulo adrenal">ADRENAL</button>
   <button role="tab" data-t="pirads" aria-selected="false" aria-label="PI-RADS v2.1">PI-RADS</button>
@@ -984,6 +1043,76 @@ function adSetMode(m){
 }
 $('adRM').onclick=()=>adSetMode('rm');$('adTC').onclick=()=>adSetMode('tc');
 document.querySelectorAll('#adrenal input').forEach(el=>el.addEventListener('input',adrenal));
+/* Massa uterina: leiomioma × sarcoma (DWI, 1,5 T) */
+function utero(){
+  const r=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?+e.value:null};
+  const ln=r('ut-ln'),t2=r('ut-t2'),dw=r('ut-dw');
+  const F=new Set([...document.querySelectorAll('#utFlags input:checked')].map(e=>e.value));
+  let adc=num($('utAdc'));if(adc>10)adc/=1000;
+  const stop1=ln===1,stop2=stop1||t2===1,stop3=stop2||dw===0;
+  const off=(id,on)=>{const el=$(id);el.classList.toggle('off',on);el.querySelectorAll('input').forEach(i=>i.disabled=on);if(id==='ut-q4')el.style.opacity=on?.45:''};
+  off('ut-q2',stop1);off('ut-q3',stop2);off('ut-q4',stop3);
+  const risk=['marg','meno','hem','nec','cresc'].filter(k=>F.has(k));
+  const RT={marg:'margens irregulares',meno:'pós-menopausa',hem:'hemorragia intratumoral',nec:'área central sem realce',cresc:'crescimento rápido'};
+  const riskTxt=risk.map(k=>RT[k]).join(', ');
+  const w=[];
+  let cls,lbl,head,txt,meas='';
+  const adcTxt=isFinite(adc)?`ADC de ${fmt(adc,2)} × 10⁻³ mm²/s`:'';
+  const render=()=>{
+    $('utOut').innerHTML=`<div class="tr"><span class="lvl ${cls}">${lbl}</span><div class="meta"><b>${head}</b><span class="unit">RM 1,5 T${adcTxt?' · '+adcTxt:''}</span></div></div>`+(w.length?`<ul class="path">${w.map(x=>`<li>${x}</li>`).join('')}</ul>`:'');
+    $('utReport').textContent=txt+(w.length?' '+w.join(' '):'');
+  };
+  const pend=m=>{$('utOut').innerHTML=`<p class="hint" style="margin:0">${m}</p>`;$('utReport').textContent='Responda às perguntas do algoritmo.'};
+  if(ln===null)return pend('Comece pelo passo 1.');
+  if(stop1){
+    cls='lv5';lbl='Alto';head='Suspeito de sarcoma: doença extrauterina';
+    txt='Massa miometrial associada a linfonodomegalia pélvica e/ou implantes peritoneais, achado suspeito para sarcoma uterino. Sugere-se avaliação em centro de oncologia ginecológica, evitando morcelamento.';
+    return render();
+  }
+  if(t2===null)return pend('Responda ao passo 2 (sinal em T2).');
+  if(t2===1){
+    cls='lv1';lbl='Baixo';head='Hipossinal em T2: leiomioma';
+    txt='Massa miometrial com área de hipossinal em T2, aspecto que favorece leiomioma.';
+    if(risk.length)w.push(`Atenção a ${riskTxt}: achado discordante, correlacionar com a evolução clínica.`);
+    return render();
+  }
+  if(dw===null)return pend('Responda ao passo 3 (sinal em b 1000).');
+  if(dw===0){
+    cls='lv1';lbl='Baixo';head='Difusão sem hipersinal: leiomioma';
+    txt='Massa miometrial com sinal intermediário ou alto em T2, sem hipersinal na difusão (b 1000) em relação ao endométrio, aspecto que favorece leiomioma atípico ou degenerado.';
+    if(risk.length)w.push(`Atenção a ${riskTxt}: achado discordante, correlacionar com a evolução clínica.`);
+    return render();
+  }
+  if(!isFinite(adc)||adc<=0)return pend('Informe o ADC da porção sólida (passo 4).');
+  const base=`Massa miometrial com sinal intermediário ou alto em T2 e hipersinal na difusão (b 1000) maior que o do endométrio, com ADC de ${fmt(adc,2)} × 10⁻³ mm²/s (RM 1,5 T)`;
+  if(adc<=0.905){
+    cls='lv5';lbl='Alto';head='ADC ≤ 0,905: suspeito de sarcoma';
+    txt=`${base}${risk.length?`, além de ${riskTxt}`:''}. Achados suspeitos para sarcoma uterino (leiomiossarcoma ou STUMP). Diagnóstico diferencial com leiomioma celular. Sugere-se avaliação em centro de oncologia ginecológica, evitando morcelamento.`;
+  }else if(adc<=1.23){
+    cls=risk.length?'lv4':'lv3';lbl='Indet.';head=risk.length?'ADC intermediário com sinais de alerta':'ADC intermediário: indeterminado';
+    txt=`${base}, valor acima do limiar de suspeição (0,905) e abaixo do limiar de alto valor preditivo negativo (1,23). Achado indeterminado${risk.length?`; aumentam a suspeita: ${riskTxt}`:''}. Sugere-se discussão multidisciplinar e cautela quanto a tratamento minimamente invasivo ou morcelamento.`;
+  }else{
+    if(F.has('marg')){
+      cls='lv3';lbl='Indet.';head='ADC alto, mas margens irregulares';
+      txt=`${base}, acima de 1,23, porém com margens irregulares${risk.length>1?`; outros sinais de alerta: ${risk.filter(k=>k!=='marg').map(k=>RT[k]).join(', ')}`:''}. Achado indeterminado; sugere-se discussão multidisciplinar.`;
+    }else{
+      cls='lv2';lbl='Baixo';head='ADC > 1,23: favorece leiomioma';
+      txt=`${base}, acima de 1,23, aspecto que favorece leiomioma degenerado.`;
+      if(risk.length)w.push(`Atenção a ${riskTxt}: correlacionar com a evolução clínica.`);
+    }
+  }
+  if(F.has('myx'))w.push('Hipersinal T2 acentuado com aspecto mixoide: sarcoma mixoide pode ter ADC alto; ADC elevado não exclui malignidade neste contexto.');
+  render();
+}
+document.querySelectorAll('#utero input').forEach(el=>el.addEventListener('input',utero));
+document.querySelectorAll('#utero input[type=radio],#utero input[type=checkbox]').forEach(el=>el.addEventListener('change',utero));
+$('utCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('utReport').textContent);$('utCopy').textContent='Texto copiado'}
+  catch(e){const r=document.createRange();r.selectNodeContents($('utReport'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('utCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('utCopy').textContent='Copiar texto',2000);
+};
+utero();
+
 $('adCopy').onclick=async()=>{
   try{await navigator.clipboard.writeText($('adReport').textContent);$('adCopy').textContent='Texto copiado'}
   catch(e){const r=document.createRange();r.selectNodeContents($('adReport'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('adCopy').textContent='Texto selecionado: copie manualmente'}
