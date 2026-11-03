@@ -686,7 +686,7 @@ async function gerarPDF(){
   if(val('crm'))doc.text(latin(val('crm')),210-M-40,sy+10,{align:'center'});
   const n=doc.getNumberOfPages();
   for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(140,150,160);
-    doc.text(latin('Gerado em '+hoje+' pelo app Pedir Radiologia, Radiologia UFRN'),M,287);
+    doc.text(latin('Gerado em '+hoje+' em Radiorama® (radiorama.netlify.app)'),M,287);
     if(n>1)doc.text(i+'/'+n,210-M,287,{align:'right'});}
   const nome='requisicao'+(val('nome')?'-'+slug(val('nome')):'')+'-'+new Date().toISOString().slice(0,10)+'.pdf';
   const blob=doc.output('blob');
