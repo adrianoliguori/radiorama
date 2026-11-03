@@ -44,6 +44,11 @@ a.tool:focus-visible{outline:3px solid var(--c);outline-offset:2px}
 footer{margin:48px 0 28px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
 footer p{margin:0 0 6px}
 footer a{color:inherit}
+footer .credit{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+footer .social{display:inline-flex;gap:4px}
+footer .social a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;transition:color .15s,background .15s}
+footer .social a:hover,footer .social a:focus-visible{color:var(--ink,currentColor);background:var(--line)}
+footer .social svg{width:18px;height:18px}
 @media (max-width:420px){.brand{font-size:44px}.tool{gap:12px;padding:16px 14px}.tool h3{font-size:19px}}
 @media (prefers-reduced-motion:reduce){.tool{transition:none}a.tool:hover{transform:none}}
 </style>
@@ -78,7 +83,12 @@ footer a{color:inherit}
 
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
-  <p>Disciplina de Radiologia, UFRN · Prof. Adriano Liguori · <a href="mailto:adrianoliguori@gmail.com?subject=radiorama">contato</a></p>
+  <p class="credit">Criado por Dr. Adriano Liguori
+    <span class="social">
+      <a href="mailto:adrianoliguori@gmail.com?subject=radiorama" aria-label="E-mail" title="E-mail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
+      <a href="https://www.linkedin.com/in/adrianoliguori" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>
+      <a href="https://www.instagram.com/dr.adrianoliguori/" target="_blank" rel="noopener" aria-label="Instagram @dr.adrianoliguori" title="@dr.adrianoliguori"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a>
+    </span></p>
 </footer>
 </div>
 </body>
