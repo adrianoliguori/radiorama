@@ -345,6 +345,7 @@ footer p{max-width:80ch;margin:0 0 6px}
           <label class="f">Nome<input type="text" id="medico" autocomplete="off" placeholder="ex.: Dra. Júlia Martins"></label>
           <label class="f">CRM<input type="text" id="crm" autocomplete="off" placeholder="ex.: CRM-RN 12345"></label>
         </div>
+        <span class="hint">Nome e CRM ficam guardados só neste navegador para os próximos pedidos. Apague os campos para esquecer.</span>
       </fieldset>
 
       <fieldset>
@@ -612,8 +613,14 @@ $('copy').addEventListener('click',async()=>{
   }
   $('toast').textContent='Pedido copiado';setTimeout(()=>$('toast').textContent='',2200);
 });
-function limpar(){fields.forEach(f=>{const e=$(f);if(e.type==='checkbox')e.checked=false;else if(e.tagName==='SELECT')e.selectedIndex=0;else e.value=''})}
+const MEDICO_KEYS=['medico','crm'];
+function limpar(){fields.forEach(f=>{if(MEDICO_KEYS.includes(f))return;const e=$(f);if(e.type==='checkbox')e.checked=false;else if(e.tagName==='SELECT')e.selectedIndex=0;else e.value=''})}
 $('limpar').addEventListener('click',()=>{limpar();build()});
+// Lembrar médico solicitante neste navegador (localStorage, nada sai do aparelho)
+MEDICO_KEYS.forEach(k=>{const e=$(k);
+  try{const s=localStorage.getItem('radiorama_'+k);if(s&&!e.value)e.value=s}catch(_){}
+  e.addEventListener('input',()=>{try{const v=e.value.trim();if(v)localStorage.setItem('radiorama_'+k,v);else localStorage.removeItem('radiorama_'+k)}catch(_){}});
+});
 const EXEMPLOS={
   urg:{nome:'Ana Beatriz Fernandes Costa',idade:'27',sexo:'Feminino',modal:'USD',regiao:'pelve, via transvaginal',carater:'Urgência',
     queixa:'Dor abdominal',inicio:'agudo',tempo:'há 6 horas',carac:'súbita, em fossa ilíaca direita',secund:'Náuseas. Sem febre. Descompressão brusca negativa.',
