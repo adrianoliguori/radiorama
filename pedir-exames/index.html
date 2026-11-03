@@ -635,6 +635,26 @@ build();
 function latin(s){return String(s).replace(/→/g,'->').replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/≈/g,'~').replace(/²/g,'2').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x00-\xFF–—•]/g,'')}
 function slug(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)}
 function toast(m){$('toast').textContent=m;setTimeout(()=>$('toast').textContent='',3000)}
+// ---------- Cidade/UF pelo IP (aproximada) ----------
+const UFS={'acre':'AC','alagoas':'AL','amapa':'AP','amazonas':'AM','bahia':'BA','ceara':'CE','distrito federal':'DF','espirito santo':'ES','goias':'GO','maranhao':'MA','mato grosso':'MT','mato grosso do sul':'MS','minas gerais':'MG','para':'PA','paraiba':'PB','parana':'PR','pernambuco':'PE','piaui':'PI','rio de janeiro':'RJ','rio grande do norte':'RN','rio grande do sul':'RS','rondonia':'RO','roraima':'RR','santa catarina':'SC','sao paulo':'SP','sergipe':'SE','tocantins':'TO'};
+function uf(r){if(!r)return'';if(/^[A-Z]{2}$/.test(r))return r;const k=r.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/^state of /,'').trim();return UFS[k]||r}
+async function tentar(url,pick){const c=new AbortController();const t=setTimeout(()=>c.abort(),3000);
+  try{const r=await fetch(url,{signal:c.signal});if(!r.ok)return null;const j=await r.json();return pick(j)}catch(e){return null}finally{clearTimeout(t)}}
+let localPromise=null;
+function obterLocal(){
+  if(localPromise)return localPromise;
+  localPromise=(async()=>{
+    try{const s=sessionStorage.getItem('radiorama_local');if(s)return s}catch(e){}
+    const fontes=[
+      ['https://get.geojs.io/v1/ip/geo.json',j=>j.city&&j.country_code==='BR'?j.city+' - '+uf(j.region):(j.city?j.city+(j.region?' - '+j.region:''):null)],
+      ['https://ipwho.is/?fields=success,city,region,region_code,country_code',j=>j.success&&j.city?j.city+' - '+(j.country_code==='BR'?uf(j.region_code||j.region):j.region):null]
+    ];
+    for(const [u,p] of fontes){const r=await tentar(u,p);if(r){try{sessionStorage.setItem('radiorama_local',r)}catch(e){}return r}}
+    return '';
+  })();
+  return localPromise;
+}
+obterLocal();
 async function gerarPDF(){
   if(!window.jspdf){toast('Não foi possível carregar o gerador de PDF');return}
   const linhas=build().filter(x=>x[1]);
@@ -655,7 +675,11 @@ async function gerarPDF(){
     y+=hgt+3.5;doc.setDrawColor(201,211,219);doc.setLineWidth(.2);doc.line(M,y-2.2,210-M,y-2.2);y+=2.5;
   });
   // assinatura
+  const local=await obterLocal();
   let sy=Math.max(y+22,255);if(sy>270){doc.addPage();sy=60}
+  if(local){const ext=new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});
+    doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(22,36,58);
+    doc.text(latin(local+', '+ext),210-M,sy-14,{align:'right'});}
   doc.setDrawColor(22,36,58);doc.setLineWidth(.3);doc.line(210-M-80,sy,210-M,sy);
   doc.setFontSize(10);doc.setTextColor(22,36,58);doc.setFont('helvetica','normal');
   doc.text(latin(val('medico')||'Médico solicitante'),210-M-40,sy+5,{align:'center'});
