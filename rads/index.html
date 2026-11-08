@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Classificações · radiorama</title>
-<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, massa uterina (leiomioma × sarcoma pela difusão), VI-RADS, PI-RADS v2.1, PI-QUAL v2 e nódulo adrenal (chemical shift e washout) com cálculo da categoria, conduta e texto de laudo.">
+<meta name="description" content="Classificações TI-RADS, APENDIC-RADS, nefrometria R.E.N.A.L., O-RADS RM, massa uterina (leiomioma × sarcoma pela difusão), VI-RADS, PI-RADS v2.1, PI-QUAL v2, nódulo adrenal (chemical shift e washout) e PCI de carcinomatose peritoneal com cálculo da categoria, conduta e texto de laudo.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,6 +139,20 @@ nav.tabs .in::-webkit-scrollbar{display:none}
 nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:nowrap}
 [hidden]{display:none!important}
 .home{display:inline-block;font-size:14px;color:var(--muted);text-decoration:none;margin-bottom:14px}.home:hover{color:var(--ink)}
+.pci-map{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:480px}
+.pci-sb{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:480px}
+.pci-r{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 6px;min-height:78px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;line-height:1.15;transition:background .15s}
+.pci-r .n{font-size:13px;color:var(--muted);font-weight:700}
+.pci-r .nm{font-size:13px}
+.pci-r .ls{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.pci-r[data-ls="1"]{background:color-mix(in srgb,var(--alert) 18%,var(--surface));border-color:color-mix(in srgb,var(--alert) 35%,var(--line))}
+.pci-r[data-ls="2"]{background:color-mix(in srgb,var(--alert) 42%,var(--surface));border-color:color-mix(in srgb,var(--alert) 60%,var(--line))}
+.pci-r[data-ls="3"]{background:var(--alert);border-color:var(--alert);color:#fff}
+.pci-r[data-ls="3"] .n{color:#fff}
+.pci-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin:-6px 0 12px}
+.pci-leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line);background:var(--surface)}
+.pci-leg i.ls1{background:color-mix(in srgb,var(--alert) 18%,var(--surface))}.pci-leg i.ls2{background:color-mix(in srgb,var(--alert) 42%,var(--surface))}.pci-leg i.ls3{background:var(--alert)}
+@media (prefers-reduced-motion:reduce){.pci-r{transition:none}}
 </style>
 </head>
 <body>
@@ -519,6 +533,76 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <p class="hint">RM: a avaliação visual (queda nítida de sinal em relação ao baço) costuma bastar; a medida ajuda nos casos limítrofes. Fígado não é boa referência, pela esteatose. Em 3 T a queda tende a ser menor. TC: se o nódulo mede ≤ 10 UH sem contraste, o diagnóstico de adenoma está feito e o washout é desnecessário. Cerca de 10–30% dos adenomas são pobres em lipídio: para eles serve o washout. Nódulo sem contraste &gt; 43 UH, heterogêneo ou &gt; 4 cm merece atenção, mesmo com washout favorável. O washout perde especificidade em feocromocitoma e em metástases hipervasculares (rim, fígado), e lesão com realce portal &lt; 10 UH acima da fase sem contraste (ou densidade portal muito baixa) não tem washout confiável.</p>
 </section>
 
+<section id="pci" class="panel" aria-labelledby="h-pci">
+  <h2 id="h-pci">PCI: índice de carcinomatose peritoneal</h2>
+  <p class="lead">Escore de Sugarbaker (Jacquet e Sugarbaker, 1996): 13 regiões, cada uma pontuada pelo maior implante (0 a 3). Total de 0 a 39. Toque em uma região para mudar o escore.</p>
+  <div class="result sticky-res" id="pciOut"></div>
+
+  <fieldset><legend>Tumor primário</legend>
+    <select id="pciPrim" aria-label="Tumor primário">
+      <option value="nd">Não informado</option>
+      <option value="cr">Colorretal ou apêndice (adenocarcinoma)</option>
+      <option value="ga">Gástrico</option>
+      <option value="ov">Ovário</option>
+      <option value="pmp">Pseudomixoma peritoneal</option>
+      <option value="meso">Mesotelioma peritoneal</option>
+    </select>
+  </fieldset>
+
+  <fieldset><legend>Método</legend>
+    <div class="seg" role="group" aria-label="Método" style="max-width:480px">
+      <button type="button" data-m="TC" aria-pressed="true">TC</button>
+      <button type="button" data-m="RM" aria-pressed="false">RM</button>
+      <button type="button" data-m="PET-TC" aria-pressed="false">PET-TC</button>
+    </div>
+  </fieldset>
+
+  <fieldset><legend>Abdome e pelve (regiões 0 a 8)<span class="sc" id="pciAP"></span></legend>
+    <p class="hint" style="margin:0 0 8px">Vista frontal: o lado direito do paciente fica à esquerda da tela.</p>
+    <div class="pci-map" id="pciMap"></div>
+  </fieldset>
+  <fieldset><legend>Intestino delgado (regiões 9 a 12)<span class="sc" id="pciSB"></span></legend>
+    <div class="pci-sb" id="pciSbMap"></div>
+  </fieldset>
+
+  <div class="pci-leg" aria-hidden="true">
+    <span><i class="ls0"></i>LS-0 sem tumor</span>
+    <span><i class="ls1"></i>LS-1 ≤ 0,5 cm</span>
+    <span><i class="ls2"></i>LS-2 &gt; 0,5 até 5 cm</span>
+    <span><i class="ls3"></i>LS-3 &gt; 5 cm ou confluente</span>
+  </div>
+  <div class="pq-bar"><button type="button" class="btn ghost" id="pciReset">Zerar regiões</button></div>
+
+  <fieldset><legend>Achados que pesam contra citorredução completa</legend><div class="opts">
+    <label><input type="checkbox" class="pci-f" value="mes"><span class="txt">Espessamento ou retração da raiz do mesentério / mesentério do delgado</span></label>
+    <label><input type="checkbox" class="pci-f" value="sb"><span class="txt">Acometimento difuso da serosa do delgado ou obstrução em múltiplos segmentos</span></label>
+    <label><input type="checkbox" class="pci-f" value="hil"><span class="txt">Massa no hilo hepático ou no ligamento hepatoduodenal</span></label>
+    <label><input type="checkbox" class="pci-f" value="pan"><span class="txt">Envolvimento extenso da cabeça do pâncreas ou do retroperitônio</span></label>
+    <label><input type="checkbox" class="pci-f" value="ext"><span class="txt">Doença fora do peritônio<small>Ex.: metástases hepáticas parenquimatosas múltiplas, pulmonares ou linfonodos extra-abdominais</small></span></label>
+  </div></fieldset>
+
+  <h3>Texto de laudo</h3>
+  <div class="report" id="pciReport"></div>
+  <button type="button" class="btn" id="pciCopy">Copiar texto</button>
+
+  <h3>Regiões</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Região</th><th>Conteúdo principal</th></tr></thead>
+    <tbody>
+      <tr><td>0 Central</td><td>Incisão mediana, omento maior, cólon transverso</td></tr>
+      <tr><td>1 Hipocôndrio direito</td><td>Superfície do lobo hepático direito, diafragma direito, espaço retro-hepático</td></tr>
+      <tr><td>2 Epigástrio</td><td>Gordura epigástrica, lobo hepático esquerdo, omento menor, ligamento falciforme</td></tr>
+      <tr><td>3 Hipocôndrio esquerdo</td><td>Diafragma esquerdo, baço, cauda do pâncreas, faces do estômago</td></tr>
+      <tr><td>4 Flanco esquerdo</td><td>Cólon descendente, goteira parietocólica esquerda</td></tr>
+      <tr><td>5 Fossa ilíaca esquerda</td><td>Sigmoide, parede pélvica lateral esquerda</td></tr>
+      <tr><td>6 Pelve</td><td>Ovários e tubas, útero, bexiga, fundo de saco de Douglas, retossigmoide</td></tr>
+      <tr><td>7 Fossa ilíaca direita</td><td>Ceco, apêndice, parede pélvica lateral direita</td></tr>
+      <tr><td>8 Flanco direito</td><td>Cólon ascendente, goteira parietocólica direita</td></tr>
+      <tr><td>9–12 Delgado</td><td>Jejuno proximal, jejuno distal, íleo proximal, íleo distal (alças e mesentério)</td></tr>
+    </tbody></table></div>
+  <p class="hint">O escore de cada região é o do maior implante nela, não a soma dos implantes. Doença confluente que oblitera estruturas recebe LS-3, mesmo com implantes pequenos. Na imagem, o PCI tende a subestimar o cirúrgico: a TC tem baixa sensibilidade para implantes &lt; 0,5 cm e para o delgado e seu mesentério (regiões 9 a 12). A RM com difusão e a PET-TC ajudam em parte desses casos. Os pontos de corte variam com o tumor primário e a decisão sobre citorredução e HIPEC é da equipe multidisciplinar.</p>
+</section>
+
 <footer>
   <p><b>Uso educacional e de apoio.</b> Não substitui o julgamento clínico nem os protocolos da instituição.</p>
   <p>Baseado em:</p>
@@ -538,6 +622,9 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
     <li>Caoili EM et al. Adrenal masses: characterization with combined unenhanced and delayed enhanced CT. Radiology 2002;222:629–33</li>
     <li>Mayo-Smith WW et al. Management of incidental adrenal masses: ACR Incidental Findings Committee white paper. J Am Coll Radiol 2017;14:1038–44</li>
     <li>Queiroz MR, Jabour VA et al. APENDIC-RADS: an ultrasound reporting system for the diagnosis of acute appendicitis. einstein (São Paulo) 2024;22:eAO1164</li>
+    <li>Jacquet P, Sugarbaker PH. Clinical research methodologies in diagnosis and staging of patients with peritoneal carcinomatosis. Cancer Treat Res 1996;82:359–74</li>
+    <li>Faron M et al. Linear relationship of peritoneal cancer index and survival in patients with peritoneal metastases from colorectal cancer. Ann Surg Oncol 2016;23:114–9</li>
+    <li>Glehen O et al. Peritoneal carcinomatosis from gastric cancer: a multi-institutional study of 159 patients treated by cytoreductive surgery combined with perioperative intraperitoneal chemotherapy. Ann Surg Oncol 2010;17:2370–7</li>
   </ul>
 </footer>
 </main>
@@ -550,6 +637,7 @@ nav.tabs button{flex:1 0 auto;padding-left:12px;padding-right:12px;white-space:n
   <button role="tab" data-t="utero" aria-selected="false" aria-label="Massa uterina: leiomioma ou sarcoma">ÚTERO</button>
   <button role="tab" data-t="virads" aria-selected="false">VI-RADS</button>
   <button role="tab" data-t="adrenal" aria-selected="false" aria-label="Nódulo adrenal">ADRENAL</button>
+  <button role="tab" data-t="pci" aria-selected="false" aria-label="PCI: índice de carcinomatose peritoneal">PCI</button>
   <button role="tab" data-t="pirads" aria-selected="false" aria-label="PI-RADS v2.1">PI-RADS</button>
   <button role="tab" data-t="piqual" aria-selected="false">PI-QUAL</button>
 </div></nav>
@@ -1119,6 +1207,62 @@ $('adCopy').onclick=async()=>{
   setTimeout(()=>$('adCopy').textContent='Copiar texto',2000);
 };
 adrenal();
+
+/* PCI: índice de carcinomatose peritoneal */
+const PCI_R=[
+ [0,'Central'],[1,'Hipocôndrio D'],[2,'Epigástrio'],[3,'Hipocôndrio E'],[4,'Flanco E'],[5,'Fossa ilíaca E'],[6,'Pelve'],[7,'Fossa ilíaca D'],[8,'Flanco D'],
+ [9,'Jejuno proximal'],[10,'Jejuno distal'],[11,'Íleo proximal'],[12,'Íleo distal']];
+const PCI_LONG=['região central','hipocôndrio direito','epigástrio','hipocôndrio esquerdo','flanco esquerdo','fossa ilíaca esquerda','pelve','fossa ilíaca direita','flanco direito','jejuno proximal','jejuno distal','íleo proximal','íleo distal'];
+const PCI_LAY=[1,2,3,8,0,4,7,6,5];
+const pciLS=Array(13).fill(0);let pciM='TC';
+const pciBtn=i=>`<button type="button" class="pci-r" data-i="${i}" data-ls="0"><span class="n">${i}</span><span class="nm">${PCI_R[i][1]}</span><span class="ls">0</span></button>`;
+$('pciMap').innerHTML=PCI_LAY.map(pciBtn).join('');
+$('pciSbMap').innerHTML=[9,10,11,12].map(pciBtn).join('');
+document.querySelectorAll('.pci-r').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i;pciLS[i]=(pciLS[i]+1)%4;pci()}));
+document.querySelectorAll('#pci .seg button').forEach(b=>b.addEventListener('click',()=>{pciM=b.dataset.m;document.querySelectorAll('#pci .seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));pci()}));
+$('pciReset').onclick=()=>{pciLS.fill(0);pci()};
+$('pciPrim').addEventListener('change',pci);
+document.querySelectorAll('.pci-f').forEach(el=>el.addEventListener('change',pci));
+const PCI_FT={mes:'espessamento/retração do mesentério do delgado',sb:'acometimento difuso da serosa do delgado ou obstrução em múltiplos segmentos',hil:'massa no hilo hepático/ligamento hepatoduodenal',pan:'envolvimento extenso da cabeça do pâncreas ou do retroperitônio',ext:'doença extraperitoneal'};
+function pciCtx(prim,t){
+  if(prim==='cr')return t<=10?['Favorável','lv1','Colorretal: PCI ≤ 20 costuma ser o limite para citorredução + HIPEC; quanto menor, melhor a sobrevida.']
+    :t<=20?['Dentro do limite','lv3','Colorretal: PCI ≤ 20 costuma ser o limite (alguns centros usam &lt; 15–17). A sobrevida cai de forma linear com o PCI.']
+    :['Acima do limite','lv5','Colorretal: PCI &gt; 20 em geral contraindica citorredução + HIPEC.'];
+  if(prim==='ga')return t<=6?['Favorável','lv2','Gástrico: PCI ≤ 6 se associa a melhor sobrevida após citorredução; muitos centros limitam a indicação a PCI baixo.']
+    :t<=12?['Limítrofe','lv4','Gástrico: PCI acima de 6 reduz muito o benefício; poucos centros operam com PCI até 12.']
+    :['Desfavorável','lv5','Gástrico: PCI &gt; 12 em geral contraindica citorredução.'];
+  if(prim==='ov')return [t<=10?'Baixo':t<=20?'Intermediário':'Alto',t<=10?'lv2':t<=20?'lv3':'lv4','Ovário: não há ponto de corte consensual; PCI alto reduz a chance de citorredução completa e orienta a escolha entre cirurgia primária e quimioterapia neoadjuvante.'];
+  if(prim==='pmp')return ['PCI não limita','lvb','Pseudomixoma: PCI alto não contraindica por si só; o que pesa é a chance de citorredução completa.'];
+  if(prim==='meso')return [t<=10?'Baixo':t<=20?'Intermediário':'Alto',t<=10?'lv2':t<=20?'lv3':'lv4','Mesotelioma peritoneal: PCI mais alto se associa a pior prognóstico; sem ponto de corte único.'];
+  return [t===0?'Sem implantes':t<=10?'Baixo':t<=20?'Intermediário':'Alto',t===0?'lv1':t<=10?'lv2':t<=20?'lv3':'lv5','Os pontos de corte dependem do tumor primário; escolha-o acima para ver a referência.'];
+}
+function pci(){
+  document.querySelectorAll('.pci-r').forEach(b=>{const v=pciLS[+b.dataset.i];b.dataset.ls=v;b.querySelector('.ls').textContent=v;b.setAttribute('aria-label',`Região ${b.dataset.i}, ${PCI_LONG[+b.dataset.i]}: LS-${v}. Toque para mudar.`)});
+  const t=pciLS.reduce((a,b)=>a+b,0),ap=pciLS.slice(0,9).reduce((a,b)=>a+b,0),sb=t-ap;
+  $('pciAP').textContent=ap+' pt';$('pciSB').textContent=sb+' pt';
+  const prim=$('pciPrim').value,F=[...document.querySelectorAll('.pci-f:checked')].map(e=>e.value);
+  const [lbl,cls,note]=pciCtx(prim,t);
+  $('pciOut').innerHTML=`<div class="tr"><span class="lvl ${cls}">${t}</span><div class="meta"><b>PCI ${t}/39 · ${lbl}</b><span class="unit">Abdome e pelve ${ap} + delgado ${sb}</span></div></div><p class="hint" style="margin:10px 0 0">${note}</p>${F.length?`<span class="adj">${F.length} achado${F.length>1?'s':''} contra citorredução completa</span>`:''}`;
+  const inv=PCI_R.filter(([i])=>pciLS[i]>0);
+  const by=v=>inv.filter(([i])=>pciLS[i]===v).map(([i])=>`${PCI_LONG[i]} (${i})`);
+  const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+  const primTxt={cr:' de origem colorretal/apendicular',ga:' de origem gástrica',ov:' de origem ovariana',pmp:' (pseudomixoma peritoneal)',meso:' (mesotelioma peritoneal)'}[prim]||'';
+  let r;
+  if(!t)r=`Não há implantes peritoneais identificáveis na ${pciM} (PCI estimado 0/39).`;
+  else{
+    const parts=[[3,'implantes maiores que 5 cm ou confluentes (LS-3)'],[2,'implantes de 0,5 a 5 cm (LS-2)'],[1,'implantes de até 0,5 cm (LS-1)']].filter(([v])=>by(v).length).map(([v,d])=>`${d} em ${list(by(v))}`);
+    r=`Carcinomatose peritoneal${primTxt}, com ${parts.join('; ')}. Índice de carcinomatose peritoneal (PCI) estimado pela ${pciM}: ${t}/39 (abdome e pelve ${ap}, intestino delgado ${sb}).`;
+  }
+  if(F.length)r+=` Achados com impacto na ressecabilidade: ${list(F.map(k=>PCI_FT[k]))}.`;
+  if(t)r+=` A ${pciM} pode subestimar o PCI cirúrgico, especialmente para implantes pequenos e no intestino delgado e seu mesentério.`;
+  $('pciReport').textContent=r;
+}
+$('pciCopy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('pciReport').textContent);$('pciCopy').textContent='Texto copiado'}
+  catch(e){const r=document.createRange();r.selectNodeContents($('pciReport'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('pciCopy').textContent='Texto selecionado: copie manualmente'}
+  setTimeout(()=>$('pciCopy').textContent='Copiar texto',2000);
+};
+pci();
 </script>
 </body>
 </html>
